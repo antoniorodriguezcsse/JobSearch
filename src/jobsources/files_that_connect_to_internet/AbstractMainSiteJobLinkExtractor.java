@@ -2,23 +2,23 @@ package jobsources.files_that_connect_to_internet;
 
 import java.util.ArrayList;
 
-public abstract class AbstractMainSiteJobLinkExtractor extends AbstractHTMLGrabber {
-    ArrayList<String> allJobLinks = new ArrayList<String>();
+abstract class AbstractMainSiteJobLinkExtractor extends AbstractHTMLGrabber {
+    ArrayList<String> allJobLinks = new ArrayList<>();
     String nextMainSite;
 
-     ArrayList<String> getAllJobLinksFromSite() {
+    ArrayList<String> getAllJobLinksFromSite() {
         return allJobLinks;
     }
 
-    protected void clearAllJobLinksFromSite()
-    {
+    void clearAllJobLinksFromSite() {
         allJobLinks.clear();
     }
 
-    public String getNextMainSite() {
+    String getNextMainSite() {
         return nextMainSite;
     }
 
     abstract protected void setAllJobLinksFromMainSite();
+
     abstract protected void setNextMainSite();
 }

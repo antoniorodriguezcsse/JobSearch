@@ -5,6 +5,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,7 +16,7 @@ public class GlassdoorMainSiteJobLinkExtractor extends AbstractMainSiteJobLinkEx
     public ArrayList<String> getAllJobLinksFromAllMainSites(String numberOfSites, String mainSite) throws CustomExceptions {
         String nextMainSite = mainSite;
         boolean numberOfSitesIsNumber = isNumberOfSitesANumber(numberOfSites);
-        ArrayList<String> jobSites = new ArrayList<String>();
+        ArrayList<String> jobSites = new ArrayList<>();
 
         do {
             try {
@@ -59,10 +61,11 @@ public class GlassdoorMainSiteJobLinkExtractor extends AbstractMainSiteJobLinkEx
         return numberOfSitesIsNumber;
     }
 
+    @Override
     protected void setAllJobLinksFromMainSite() {
         Elements jobContainer = html.select("div.jobContainer");
         Elements list = jobContainer.select("a.jobLink.jobInfoItem.jobTitle");
-
+        Set<String> noDuplicateJobLinks = new HashSet<>();
         String jobLink = "";
         for (Element element : list) {
             if (!element.attr("href").contains("https")) {
@@ -71,10 +74,12 @@ public class GlassdoorMainSiteJobLinkExtractor extends AbstractMainSiteJobLinkEx
                 jobLink = element.attr("href");
             }
 
-            allJobLinks.add(jobLink);
+            noDuplicateJobLinks.add(jobLink);
         }
+        allJobLinks.addAll(noDuplicateJobLinks);
     }
 
+    @Override
     protected void setNextMainSite() {
         String pageThatsDisabled = html.select("li.next").select("span.disabled").text();
 
@@ -90,6 +95,7 @@ public class GlassdoorMainSiteJobLinkExtractor extends AbstractMainSiteJobLinkEx
             nextMainSite = "https://www.glassdoor.com" + nextMainSite;
         }
     }
+
 
     private String connectToMainWebSite(String website) throws CustomExceptions {
         if (!website.contains("https://www.glassdoor.com") && !website.isEmpty() && !website.contains("websiteTest")) {

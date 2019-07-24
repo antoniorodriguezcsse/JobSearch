@@ -76,7 +76,6 @@ public class JobData implements Serializable {
             applyType = "ApplyType: Not connected to site.";
             jobTitle = "JobTitle: Not connected to site.";
         }
-
     }
 
     private void setdontShowJob(String lineFromJobDescription) {
@@ -104,13 +103,13 @@ public class JobData implements Serializable {
         }
     }
 
-    public Boolean dontShowJob() {
+    Boolean dontShowJob() {
         return dontShowJob;
     }
 
     private void setLinesWithGoodKeywords(String lineFromJobDescription) {
         String regex = "[/\\s,()-]|\\.\\s";
-        ArrayList<String> words = new ArrayList<String>(Arrays.asList(lineFromJobDescription.split(regex)));
+        ArrayList<String> words = new ArrayList<>(Arrays.asList(lineFromJobDescription.split(regex)));
 
         for (String goodKeyword : goodKeywords) {
             for (String word : words) {
@@ -135,15 +134,13 @@ public class JobData implements Serializable {
     }
 
     public String getDifferenceBetweenDates(String finalDate, String initialDate, String format) {
-       if(initialDate.equals("<div class="))
-       {
-           return "can't find site or site is invalid.";
-       }
+        if (initialDate.equals("<div class=")) {
+            return "can't find site or site is invalid.";
+        }
 
-       if(initialDate.equals("can't find site or site is invalid."))
-       {
-           return "can't find site or site is invalid.";
-       }
+        if (initialDate.equals("can't find site or site is invalid.")) {
+            return "can't find site or site is invalid.";
+        }
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
 
         Date date1 = null;
@@ -154,7 +151,7 @@ public class JobData implements Serializable {
         } catch (ParseException e) {
 
             return "invalid date.";
-         //   e.printStackTrace();
+            //   e.printStackTrace();
         }
 
         if (date1 == null || date2 == null) {
@@ -168,8 +165,7 @@ public class JobData implements Serializable {
         return numberOfDaysPosted;
     }
 
-    private void setDatePosted()
-    {
+    private void setDatePosted() {
         Elements applyDiv = jobSiteData.getParsedHTML().select("div.pageInsideContent");
 
         String datePosted = "";
@@ -177,8 +173,7 @@ public class JobData implements Serializable {
             datePosted = stringTools.removeEverythingBeforeAndIncludingTerm(String.valueOf(e), "\"datePosted\": \"");
             datePosted = stringTools.removeEverythingAfterAndIncludingTerm(datePosted, "\"");
         }
-        if(datePosted.equals("<div class="))
-        {
+        if (datePosted.equals("<div class=")) {
             this.datePosted = "can't find site or site is invalid.";
             return;
         }
@@ -187,10 +182,10 @@ public class JobData implements Serializable {
     }
 
     public String getDatePosted() {
-     return datePosted;
+        return datePosted;
     }
 
-    public ArrayList<String> getBulletPoints() {
+    ArrayList<String> getBulletPoints() {
         if (jobSiteData.getBulletPoints().isEmpty()) {
             ArrayList<String> noDescription = new ArrayList<>();
             noDescription.add("Description was empty.");
