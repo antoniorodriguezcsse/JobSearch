@@ -1,6 +1,5 @@
 package jobsources;
 
-import jobsources.files_that_connect_to_internet.GlassdoorFacade;
 import jobsources.files_that_work_with_job_data.JListData;
 import jobsources.files_that_work_with_job_data.JobData;
 import jobsources.gui.JComboBoxGUI;
@@ -45,7 +44,7 @@ public class SearchThread implements Runnable {
 //       // SWENewGradAbstractJobStrategy(allJobsJList, jComboBoxNumberOfJobsToFind);
         if(searchTerm.equals("Entry level software engineer")) {
             String mainSite = "https://www.glassdoor.com/Job/concord-software-engineer-entry-level-jobs-SRCH_IL.0,7_IC1147340_KE8,37.htm?radius=50";
-            GlassdoorFacade glassdoorFacade = new GlassdoorFacade(mainSite);
+         //   GlassdoorFacade glassdoorFacade = new GlassdoorFacade(mainSite);
 
 //            Context context = new Context(new EntrySWEAbstractJobStrategy(allJobsJList, jComboBoxNumberOfJobsToFind));
 //            jobDataArrayList = context.executeStrategy();

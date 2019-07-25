@@ -6,11 +6,12 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.io.IOException;
 
-public abstract class AbstractHTMLGrabber {
+ abstract class AbstractHTMLGrabber {
     Document html = Document.createShell("");
     transient Document parsedHTML;
 
     String connectToWebsite(String mainSite/* JListAllJobsGUI jListAllJobsGUI*/) {
+
         Document documentFromFile;
         try {
             if(mainSite.contains("https://")) {
@@ -25,8 +26,8 @@ public abstract class AbstractHTMLGrabber {
                     html = documentFromFile;
                 }
             }
-
             parsedHTML = Jsoup.parse(String.valueOf(html));
+
             return "Connected.";
         } catch (IOException e) {
             return "Could not connect to site.";
