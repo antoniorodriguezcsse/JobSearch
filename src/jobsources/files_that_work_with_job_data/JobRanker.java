@@ -12,41 +12,47 @@ public class JobRanker implements Serializable {
     private Integer numberOfDaysPosted = 0;
     private JobData jobData;
     private ArrayList<String> linesOfDescription = new ArrayList<>();
-    private ArrayList<String> goodKeyWords = new ArrayList<>();
     private ArrayList<String> jobDescriptionText = new ArrayList<>();
     private Integer applyTypePoints = 0;
     private Integer jobRank = 0;
     private Integer goodWordTotalPoints = 0;
     private Integer badWordTotalPoints = 0;
     private Integer numberOfDaysPostedPoints = 0;
-    private ArrayList<String> badKeyWords = new ArrayList<>();
-    private ArrayList<String> wordsInBodyAndDescription = new ArrayList<>();
+    private TreeSet<String> badKeyWords;
+    private TreeSet<String> goodKeyWords;
+    private TreeSet<String> wordsInBodyAndDescription;
 
     public JobRanker(String applyType, ArrayList<String> jobDescriptionText, Integer numberOfDaysPosted) {
-        // jobData = new JobData(jobSite);
         this.applyType = applyType;
         this.jobDescriptionText = jobDescriptionText;
         this.numberOfDaysPosted = numberOfDaysPosted;
 
         FileRead goodWordsFile = new FileRead();
-        goodKeyWords = goodWordsFile.getLinesFromFile("good-keywords.txt");
+        goodKeyWords = lowercaseTreeSet(new TreeSet<>(goodWordsFile.getLinesFromFile("good-keywords.txt")));
+        goodKeyWords.removeIf(String::isEmpty);
+        goodKeyWords.removeIf(String::isBlank);
 
         FileRead badWordFile = new FileRead();
-        badKeyWords = badWordFile.getLinesFromFile("bad-keywords.txt");
+        badKeyWords = lowercaseTreeSet(new TreeSet<>(badWordFile.getLinesFromFile("bad-keywords.txt")));
+        badKeyWords.removeIf(String::isEmpty);
+        badKeyWords.removeIf(String::isBlank);
 
         setApplyTypePoints();
-        setWordsinBodyAndDescription();
-        setGoodWordTotalPoints();
-        setBadWordTotalPoints();
+        if (!jobDescriptionText.isEmpty()) {
+            setWordsinBodyAndDescription();
+            setGoodWordTotalPoints();
+            setBadWordTotalPoints();
+        }
+
         setNumberOfDaysPostedPoints();
         setJobRank();
     }
 
     private void setJobRank() {
-        jobRank = (goodWordTotalPoints * 25) + applyTypePoints - badWordTotalPoints - numberOfDaysPostedPoints;
+        jobRank = (goodWordTotalPoints * 25) + applyTypePoints - (badWordTotalPoints * 5) - numberOfDaysPostedPoints;
     }
 
-    public Integer getJobRank() {
+    Integer getJobRank() {
         return jobRank;
     }
 
@@ -65,6 +71,7 @@ public class JobRanker implements Serializable {
     private void setWordsinBodyAndDescription() {
         String[] buffer;
         for (String s : jobDescriptionText) {
+            s = s.toLowerCase();
             s = s.replace(",", "");
             s = s.replace(".", "");
             s = s.replace(":", "");
@@ -72,38 +79,30 @@ public class JobRanker implements Serializable {
             s = s.replace(")", "");
             s = s.replace("/", " ");
             buffer = s.split(" ");
-            wordsInBodyAndDescription.addAll(Arrays.asList(buffer));
+            wordsInBodyAndDescription = new TreeSet<>(Arrays.asList(buffer));
         }
     }
 
     private void setGoodWordTotalPoints() {
         Map<String, Integer> goodWordAndOccurances = getMapOfWords(goodKeyWords);
-        Set<Map.Entry<String, Integer>> st = goodWordAndOccurances.entrySet();
-        for (Map.Entry<String, Integer> me : st) {
-//            System.out.print(me.getKey() + ":");
-//            System.out.println(me.getValue());
-            goodWordTotalPoints = goodWordTotalPoints + me.getValue();
+        for (Map.Entry<String, Integer> entry : goodWordAndOccurances.entrySet()) {
+            goodWordTotalPoints = goodWordTotalPoints + entry.getValue();
         }
     }
 
     private void setBadWordTotalPoints() {
-        //  System.out.println("bad words");
         Map<String, Integer> badWordAndOccurances = getMapOfWords(badKeyWords);
-        Set<Map.Entry<String, Integer>> st = badWordAndOccurances.entrySet();
-        for (Map.Entry<String, Integer> me : st) {
-//            System.out.print("bad words: " + me.getKey() + ":");
-//            System.out.println(me.getValue());
-
-            badWordTotalPoints = badWordTotalPoints + me.getValue();
+        for (Map.Entry<String, Integer> entry : badWordAndOccurances.entrySet()) {
+            badWordTotalPoints = badWordTotalPoints + entry.getValue();
         }
     }
 
-    private Map<String, Integer> getMapOfWords(ArrayList<String> wordList) {
+    private Map<String, Integer> getMapOfWords(TreeSet<String> wordList) {
         Map<String, Integer> map = new HashMap<>();
         for (String word : wordList) {
             for (String wordInBodyAndDescription : wordsInBodyAndDescription) {
-                if (word.toLowerCase().equals(wordInBodyAndDescription.toLowerCase())) {
-                    map = addToHashMap(map, word);
+                if (word.toLowerCase().equals(wordInBodyAndDescription)) {
+                    addToHashMap(map, word);
                 }
             }
         }
@@ -111,7 +110,6 @@ public class JobRanker implements Serializable {
     }
 
     private Map<String, Integer> addToHashMap(Map<String, Integer> map, String word) {
-
         if (map.isEmpty()) {
             map.put(word, 1);
         } else {
@@ -137,5 +135,12 @@ public class JobRanker implements Serializable {
             }
         }
         return map;
+    }
+
+    public static TreeSet<String> lowercaseTreeSet(TreeSet<String> strings) {
+        TreeSet<String> buffer = new TreeSet<>();
+        for (String string : strings)
+            buffer.add(string.toLowerCase());
+        return buffer;
     }
 }

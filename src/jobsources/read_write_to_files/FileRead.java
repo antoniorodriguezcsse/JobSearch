@@ -40,7 +40,6 @@ public class FileRead {
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
         setLinesFromFile(bufferedReader);
-
         closeReaders(inputStreamReader, bufferedReader);
 
         if (linesFromFile.isEmpty()) {

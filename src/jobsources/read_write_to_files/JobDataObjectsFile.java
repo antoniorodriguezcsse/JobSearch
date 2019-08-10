@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.TreeSet;
 
 public class JobDataObjectsFile {
 
@@ -16,10 +17,9 @@ public class JobDataObjectsFile {
     }
 
 
-    public void writeObjectsToFile(LinkedHashMap<String, JobData> map) {
+    public void writeObjectsToFile(TreeSet<JobData> map) {
 
-        ArrayList<JobData> objects = new ArrayList<>();
-        objects.addAll(map.values());
+        ArrayList<JobData> objects = new ArrayList<>(map);
 
 //        for (JobData jd : objects) {
 //            noDuplicatesMap.put(jd.getJobLink(), jd);

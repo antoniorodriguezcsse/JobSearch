@@ -5,9 +5,9 @@ import org.jsoup.nodes.Document;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-abstract class AbstractJobSiteData extends AbstractHTMLGrabber implements Serializable  {
+abstract class AbstractJobSiteData extends AbstractHTMLGrabber implements Serializable {
 
-   // transient Document parsedHTML;
+    // transient Document parsedHTML;
     private transient Document html;
     String bodyAndDescriptionText = "";
     final ArrayList<String> bulletPoints = new ArrayList<>();
@@ -15,12 +15,13 @@ abstract class AbstractJobSiteData extends AbstractHTMLGrabber implements Serial
     String jobLink;
 
     abstract public ArrayList<String> getBulletPoints();
+
     abstract void setAllText();
+
     abstract void setJobLink();
 
     public String getHTMLTitle() {
-        if(parsedHTML == null)
-        {
+        if (parsedHTML == null) {
             return "Job title has not been set.";
         }
         return parsedHTML.title();
@@ -31,16 +32,14 @@ abstract class AbstractJobSiteData extends AbstractHTMLGrabber implements Serial
     }
 
     public ArrayList<String> getAllText() {
-        if(allText.isEmpty())
-        {
+        if (allText.isEmpty()) {
             allText.add("Site had not been connected.");
         }
         return allText;
     }
 
     public String getJobLink() {
-        if(jobLink == null)
-        {
+        if (jobLink == null) {
             return "Site had not been connected.";
         }
         return jobLink;

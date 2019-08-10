@@ -10,28 +10,26 @@ import org.jsoup.select.Elements;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class JobData implements Serializable {
-    private JobRanker jobRanker;
     private String jobLink = "";
     private String jobTitle = "";
     private String applyType = "";
     private String datePosted = "";
+    private String rejected = "";
     private Integer numberOfDaysPosted = 0;
     private JobSiteData jobSiteData;
     private StringTools stringTools;
     private Integer rank = 0;
-    private ArrayList<String> dontShowKeywords = new ArrayList<>();
+    private TreeSet<String> dontShowKeywords;
     private ArrayList<String> goodKeywords = new ArrayList<>();
     private ArrayList<String> linesWithGoodKeywords = new ArrayList<>();
     private ArrayList<String> jobDescriptionText = new ArrayList<>();
-    private Boolean dontShowJob = false;
+    private boolean dontShowJob = false;
     private RegExLookAt regExLookAt = new RegExLookAt();
+    private YearsOfExperienceFilter yearsOfExperienceFilter = new YearsOfExperienceFilter();
 
 
     public JobData(String link) {
@@ -44,6 +42,7 @@ public class JobData implements Serializable {
             setJobTitle();
             jobDescriptionText = jobSiteData.getAllText();
             setDatePosted();
+
             if (jobDescriptionText.get(0).equals("Job has expired.")) {
                 applyType = "Apply Type: Job expired, no data.";
                 jobTitle = "JobTitle: Job expired, no data.";
@@ -52,25 +51,28 @@ public class JobData implements Serializable {
             } else {
                 setApplyType();
                 setNumberOfDaysPosted();
-                jobRanker = new JobRanker(getApplyType(), jobDescriptionText, numberOfDaysPosted);
+                JobRanker jobRanker = new JobRanker(getApplyType(), jobDescriptionText, numberOfDaysPosted);
                 rank = jobRanker.getJobRank();
 
                 FileRead dontShowKeywordsFile = new FileRead();
-                dontShowKeywords = dontShowKeywordsFile.getLinesFromFile("dont-show-keywords.txt");
-                //FileRead("dont-show-keywords.txt");
-                //  dontShowKeywords = dontShowKeywordsFile.getParsedLinesFromFile();
+                dontShowKeywords = new TreeSet<>(dontShowKeywordsFile.getLinesFromFile("dont-show-keywords.txt"));
+                dontShowKeywords.removeIf(String::isEmpty);
+                dontShowKeywords.removeIf(String::isBlank);
 
                 FileRead goodKeywordFile = new FileRead();
                 goodKeywords = goodKeywordFile.getLinesFromFile("good-keywords.txt");
+                goodKeywords.removeIf(String::isEmpty);
+                goodKeywords.removeIf(String::isBlank);
 
                 for (String linesFromJobDescription : jobDescriptionText) {
-                    setdontShowJob(linesFromJobDescription);
+                    if (dontShowJob) {
+                        continue;
+                    }
+                    setDontShowJob(linesFromJobDescription);
                     setLinesWithGoodKeywords(linesFromJobDescription);
                 }
-
             }
 
-//        setLinesWithGoodKeywords();
         } else {
             jobLink = "JobLink: Not connected to site.";
             applyType = "ApplyType: Not connected to site.";
@@ -78,29 +80,69 @@ public class JobData implements Serializable {
         }
     }
 
-    private void setdontShowJob(String lineFromJobDescription) {
+    private void setDontShowJob(String lineFromJobDescription) {
         if (dontShowJob) {
             return;
         }
-        String lowerCaseAndSpacesRemoved = lineFromJobDescription.toLowerCase();
-        lowerCaseAndSpacesRemoved = lowerCaseAndSpacesRemoved.replace(" ", "");
 
-        String[] split = lowerCaseAndSpacesRemoved.split("(?m)^[^\\d][a-zA-Z\\W]*");
-        String stringWithLeadingNumber = "";
-        for (String s : split) {
-            if (s.isBlank()) {
-                continue;
+        dontShowKeywordsFilter(lineFromJobDescription);
+        experienceFilter(lineFromJobDescription);
+
+//        String stringWithLeadingNumber = getStringWithLeadingNumber(lineFromJobDescription);
+//        if (stringWithLeadingNumber == null) {
+//            return;
+//        }
+//        if (jobContainsYearsAndExperience(stringWithLeadingNumber)) {
+//            if (regExLookAt.regExPatternMatch(stringWithLeadingNumber, "^[0-1]"))
+//            {
+//                return;
+//            }
+//            rejected = "REJECTED: Description contains: " + stringWithLeadingNumber;
+//            dontShowJob = true;
+//        }
+    }
+
+    private void experienceFilter(String lineFromJobDescription) {
+        if (yearsOfExperienceFilter.stringContainsExperienceNumberAndYear(lineFromJobDescription)) {
+            if (yearsOfExperienceFilter.showJobFilter(lineFromJobDescription, 1)) {
+                System.out.println("passed: " + lineFromJobDescription);
+                return;
             }
-            stringWithLeadingNumber = s;
-        }
-        if (stringWithLeadingNumber.isBlank()) {
-            return;
-        }
-        boolean dontShowJobMatch;
-        dontShowJobMatch = regExLookAt.regExPatternMatch(stringWithLeadingNumber, "^[1-9][t0+y-][oey+\\d][\\daye][yrea][rseao]");
-        if (dontShowJobMatch) {
+
+            rejected = "REJECTED Experience: " + lineFromJobDescription;
             dontShowJob = true;
         }
+    }
+
+    private void dontShowKeywordsFilter(String lineFromJobDescription) {
+        for (String s : dontShowKeywords) {
+            if (lineFromJobDescription.contains(s)) {
+                rejected = "REJECTED: description contains: " + s;
+                dontShowJob = true;
+                return;
+            }
+            if (jobTitle.contains(s)) {
+                rejected = "REJECTED: Job title contains: " + s;
+                dontShowJob = true;
+                return;
+            }
+        }
+    }
+
+    private boolean jobContainsYearsAndExperience(String stringWithLeadingNumber) {
+        boolean dontShowJobMatch;
+        stringWithLeadingNumber = stringWithLeadingNumber.replaceAll("^[\\d][.][)]", "");
+        dontShowJobMatch = regExLookAt.regExPatternMatch(stringWithLeadingNumber, "^[1-9][t0+y-][oey+\\d][\\daye][yrea][rseao]");
+
+        if (dontShowJobMatch) {
+            return true;
+        }
+
+        if (stringWithLeadingNumber.contains("exp")) {
+            return true;
+        }
+
+        return stringWithLeadingNumber.contains("years") || stringWithLeadingNumber.contains("yrs");
     }
 
     Boolean dontShowJob() {
@@ -220,5 +262,9 @@ public class JobData implements Serializable {
 
     public ArrayList<String> getJobDescriptionText() {
         return jobDescriptionText;
+    }
+
+    public String getRejectedString() {
+        return rejected;
     }
 }
