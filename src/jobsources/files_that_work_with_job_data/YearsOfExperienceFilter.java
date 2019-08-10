@@ -58,6 +58,7 @@ class YearsOfExperienceFilter {
     }
 
     private void setupNumberHashMap() {
+        String test = "hello";
         numbers.put("one", "1");
         numbers.put("two", "2");
         numbers.put("three", "3");
