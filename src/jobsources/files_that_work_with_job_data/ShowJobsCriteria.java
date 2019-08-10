@@ -1,40 +1,50 @@
 package jobsources.files_that_work_with_job_data;
 
-import jobsources.SortbyRank;
-
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 public class ShowJobsCriteria implements SearchCriteria {
-    List<JobData> showJobs = new ArrayList<>();
+    private String rejected = "";
 
-    @Override
-    public List<JobData> meetsCriteria(List<JobData> jobs) {
-        for (JobData jd : jobs) {
-            if (jobMeetsCriteria(jd)) {
-                showJobs.add(jd);
-            }
-        }
-        sortJobs();
-        return showJobs;
-    }
-
-    private Boolean jobMeetsCriteria(JobData jd) {
+    public boolean meetsCriteria(JobData jd) {
         if (jd.dontShowJob()) {
             return false;
         }
 
-        if (jd.getRank() < 20) {
+        int minimumRank = -10;
+        if (jd.getRank() < minimumRank) {
+            rejected = "REJECTED: Job rank is less than " + jd.getRank();
             return false;
         }
 
-        return jd.getNumberOfDaysPosted() <= 14;
+        List<String> jobLocations = Arrays.asList("San Francisco, CA", "Concord, CA", "Walnut Creek, CA", "San Ramon, CA", "Pleasanton, CA");
 
+        boolean locationFound = false;
+        for (String s : jobLocations) {
+            if (jd.getJobTitle().contains(s)) {
+                locationFound = true;
+                break;
+            }
+        }
+
+        if (!locationFound) {
+            rejected = "REJECTED: due to location.";
+            return false;
+        }
+
+        int daysSincePost = 7;
+        if(jd.getNumberOfDaysPosted() <= daysSincePost)
+        {
+            rejected = "REJECTED: Post is older than " + daysSincePost + " days.";
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
-    private void sortJobs()
+    public String getRejected()
     {
-        Collections.sort(showJobs, new SortbyRank());
+        return rejected;
     }
 }

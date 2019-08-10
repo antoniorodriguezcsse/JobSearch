@@ -5,6 +5,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -12,6 +13,32 @@ import java.util.regex.Pattern;
 
 public class GlassdoorMainSiteJobLinkExtractor extends AbstractMainSiteJobLinkExtractor {
     private Integer numberOfLinksToGet = 0;
+
+    public HashMap<ArrayList<String>, String> getAllJobLinksFromOneMainSite(String mainSite) throws CustomExceptions {
+        HashMap<ArrayList<String>,String> listOfJobLinksAndNextMainSite = new HashMap<>();
+        try {
+            System.out.println("trying to connect to: " + mainSite);
+            if (connectToMainWebSite(mainSite).equals("Connected.")) {
+                setAllJobLinksFromMainSite();
+            } else {
+                throw new CustomExceptions("GlassdoorMainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite: Connection error.");
+            }
+
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (CustomExceptions c) {
+//            if (allJobLinks.size() == 0) {
+//                throw new CustomExceptions("GlassdoorMainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite: Connection error.");
+//            }
+            setNextMainSite();
+            listOfJobLinksAndNextMainSite.put(allJobLinks,getNextMainSite());
+            return listOfJobLinksAndNextMainSite;
+        }
+        setNextMainSite();
+        listOfJobLinksAndNextMainSite.put(allJobLinks,getNextMainSite());
+        return listOfJobLinksAndNextMainSite;
+    }
 
     public ArrayList<String> getAllJobLinksFromAllMainSites(String numberOfSites, String mainSite) throws CustomExceptions {
         String nextMainSite = mainSite;
@@ -42,6 +69,8 @@ public class GlassdoorMainSiteJobLinkExtractor extends AbstractMainSiteJobLinkEx
                     return jobSites;
                 }
             }
+
+            System.out.println(allJobLinks.size());
 
             setNextMainSite();
             nextMainSite = getNextMainSite();
@@ -83,13 +112,12 @@ public class GlassdoorMainSiteJobLinkExtractor extends AbstractMainSiteJobLinkEx
     protected void setNextMainSite() {
         String pageThatsDisabled = html.select("li.next").select("span.disabled").text();
 
-        if (pageThatsDisabled.equals("Next")) {
+        if (pageThatsDisabled.equals("Next") || html.select("li.next").isEmpty()) {
             nextMainSite = "no more pages";
             return;
         }
 
         nextMainSite = html.select("li.next").select("a[href]").attr("href");
-
         //websiteTest is part of the path of the local file. Thus if it's not a local file go to the website.
         if (!nextMainSite.contains("websiteTest")) {
             nextMainSite = "https://www.glassdoor.com" + nextMainSite;

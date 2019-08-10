@@ -3,9 +3,11 @@ package jobsources.files_that_connect_to_internet;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.text.BreakIterator;
 import java.util.ArrayList;
+import java.util.Locale;
 
- public class JobSiteData extends AbstractJobSiteData {
+public class JobSiteData extends AbstractJobSiteData {
 
     public String connectToJobSite(String jobLink) {
         allText = new ArrayList<>();
@@ -44,18 +46,17 @@ import java.util.ArrayList;
 
     @Override
     void setAllText() {
-
-        if(parsedHTML.select("div.jobDescriptionContent.desc").isEmpty())
-        {
+        if (parsedHTML.select("div.jobDescriptionContent.desc").isEmpty()) {
             allText.add("Job has expired.");
             return;
         }
 
-        Element jobBodyElement = parsedHTML.select("div.jobDescriptionContent.desc").get(0);//.select("div").get(0).childNodes().get(1).childNodes();
+        Element jobBodyElement = parsedHTML.select("div.jobDescriptionContent.desc").get(0);
         String textFromJob = String.valueOf(jobBodyElement);
         textFromJob = removeDivClassDivAndNewLines(textFromJob);
 
         String[] splitLines = splitByEndTagsAndBreaksExeceptem(textFromJob);
+        BreakIterator iterator = BreakIterator.getSentenceInstance(Locale.US);
         for (String splitLine : splitLines) {
             if (splitLine.isBlank()) {
                 continue;
@@ -64,8 +65,7 @@ import java.util.ArrayList;
             if (splitLine.contains("’")) {
                 splitLine = splitLine.replaceAll("’", "'");
             }
-
-            allText.add(splitLine.trim());
+            allText.addAll(extractSentences(iterator,splitLine.trim()));
         }
     }
 
@@ -79,7 +79,24 @@ import java.util.ArrayList;
     }
 
     private String[] splitByEndTagsAndBreaksExeceptem(String textFromJob) {
-        return textFromJob.split("<br>|<\\/li>|<ul>|<\\/div>");
+        return textFromJob.split("<br>|</li>|<ul>|</div>");
+    }
+
+    private ArrayList<String> extractSentences(BreakIterator bi, String source) {
+        int counter = 0;
+        bi.setText(source);
+        ArrayList<String> linesFromJobDescription = new ArrayList<>();
+        int lastIndex = bi.first();
+        while (lastIndex != BreakIterator.DONE) {
+            int firstIndex = lastIndex;
+            lastIndex = bi.next();
+
+            if (lastIndex != BreakIterator.DONE) {
+                String sentence = source.substring(firstIndex, lastIndex);
+                linesFromJobDescription.add(removeTagsAndCleanUpString(sentence));
+            }
+        }
+        return linesFromJobDescription;
     }
 
     private String removeDivClassDivAndNewLines(String textFromJob) {
