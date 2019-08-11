@@ -18,7 +18,6 @@ class YearsOfExperienceFilter {
 
     private TreeSet<String> hyphen = new TreeSet<>();
 
-    //work on lines that only contain numbers,
     boolean showJobFilter(String lineFromJobDescription, final int yearsOfExperience) {
         setupNumberHashMap();
         String lowerCaseLineFromDescription = lineFromJobDescription.toLowerCase();
