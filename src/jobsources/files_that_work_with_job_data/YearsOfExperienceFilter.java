@@ -116,10 +116,15 @@ class YearsOfExperienceFilter {
     }
 
     private int extractNumberFromString(String lineFromJobDescription) {
+        if (!lineFromJobDescription.matches(".*\\d.*")) {
+            return -1;
+        }
+
         StringBuilder stringBuilder = new StringBuilder(lineFromJobDescription);
         char firstCharacter = lineFromJobDescription.charAt(0);
 
         if (Character.isDigit(firstCharacter)) {
+
             char secondCharacter = lineFromJobDescription.charAt(1);
             if (Character.isDigit(secondCharacter)) {
                 stringBuilder.replace(2, stringBuilder.length(), "");
@@ -154,7 +159,7 @@ class YearsOfExperienceFilter {
         return regExLookAt.regExPatternMatch(lineFromJobDescription, ".*\\d\\s+-\\s+\\d");
     }
 
-    private boolean stringContainsExperienceNumberAndYear(String string) {
+    boolean stringContainsExperienceNumberAndYear(String string) {
         setWordsInToTreeSets(string.toLowerCase());
         if (!lineContainsExperience()) {
             return false;
@@ -196,6 +201,8 @@ class YearsOfExperienceFilter {
     private boolean lineContainsYears() {
         String[] yearVariations = {"year", "years", "yrs", "yrs."};
 
+        seperateWordAndNumber();
+
         for (String s : yearVariations) {
             if (!wordsFromLine.add(s)) {
                 return true;
@@ -203,6 +210,22 @@ class YearsOfExperienceFilter {
             wordsFromLine.remove(s);
         }
         return false;
+    }
+
+    private void seperateWordAndNumber() {
+        for (String s : wordsFromLine) {
+            if (s.matches(".*[a-zA-Z]+.*")) {
+                int number = extractNumberFromString(s);
+                if (number != -1) {
+                    wordsFromLine.remove(s);
+
+                    String buffer = s.replace(String.valueOf(number), "");
+                    wordsFromLine.add(String.valueOf(number));
+                    wordsFromLine.add(buffer);
+                    break;
+                }
+            }
+        }
     }
 
     private void setWordsInToTreeSets(String string) {
