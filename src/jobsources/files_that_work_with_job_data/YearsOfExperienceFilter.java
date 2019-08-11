@@ -15,7 +15,6 @@ class YearsOfExperienceFilter {
     private TreeSet<String> words = new TreeSet<>();
     private TreeSet<String> wordsFromLine = new TreeSet<>();
     private HashMap<String, String> numbers = new HashMap<>();
-    //  private String lowerCaseLineOfJobDescription;
 
     private TreeSet<String> hyphen = new TreeSet<>();
 
@@ -71,7 +70,6 @@ class YearsOfExperienceFilter {
     }
 
     private String deleteCharacterBeforeFirstNumberOrLetter(String lineFromJobDescription) {
-        // int indexOfFirstLetter = findIndexOfFirstLetter(lineFromJobDescription);
         int indedOfFirstNumber = findIndexOfFirstNumber(lineFromJobDescription);
 
         StringBuilder stringBuilder = new StringBuilder(lineFromJobDescription);
@@ -157,7 +155,7 @@ class YearsOfExperienceFilter {
         return regExLookAt.regExPatternMatch(lineFromJobDescription, ".*\\d\\s+-\\s+\\d");
     }
 
-    public boolean stringContainsExperienceNumberAndYear(String string) {
+    private boolean stringContainsExperienceNumberAndYear(String string) {
         setWordsInToTreeSets(string.toLowerCase());
         if (!lineContainsExperience()) {
             return false;
@@ -224,10 +222,6 @@ class YearsOfExperienceFilter {
 
         String[] splitWords = specialCharactcersRemoved.split("\\s+");
         return new TreeSet<String>(Arrays.asList(splitWords));
-    }
-
-    public TreeSet<String> getWords() {
-        return words;
     }
 
     private TreeSet<String> getHyphen() {
