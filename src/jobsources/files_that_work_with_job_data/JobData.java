@@ -87,25 +87,11 @@ public class JobData implements Serializable {
 
         dontShowKeywordsFilter(lineFromJobDescription);
         experienceFilter(lineFromJobDescription);
-
-//        String stringWithLeadingNumber = getStringWithLeadingNumber(lineFromJobDescription);
-//        if (stringWithLeadingNumber == null) {
-//            return;
-//        }
-//        if (jobContainsYearsAndExperience(stringWithLeadingNumber)) {
-//            if (regExLookAt.regExPatternMatch(stringWithLeadingNumber, "^[0-1]"))
-//            {
-//                return;
-//            }
-//            rejected = "REJECTED: Description contains: " + stringWithLeadingNumber;
-//            dontShowJob = true;
-//        }
     }
 
     private void experienceFilter(String lineFromJobDescription) {
         if (yearsOfExperienceFilter.stringContainsExperienceNumberAndYear(lineFromJobDescription)) {
             if (yearsOfExperienceFilter.showJobFilter(lineFromJobDescription, 1)) {
-                System.out.println("passed: " + lineFromJobDescription);
                 return;
             }
 

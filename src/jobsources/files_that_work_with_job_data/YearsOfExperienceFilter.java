@@ -2,6 +2,7 @@ package jobsources.files_that_work_with_job_data;
 
 import jobsources.RegExLookAt;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-class YearsOfExperienceFilter {
+class YearsOfExperienceFilter implements Serializable {
     private RegExLookAt regExLookAt = new RegExLookAt();
     private TreeSet<String> words = new TreeSet<>();
     private TreeSet<String> wordsFromLine = new TreeSet<>();
