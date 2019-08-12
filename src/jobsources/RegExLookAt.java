@@ -11,6 +11,5 @@ public class RegExLookAt implements Serializable {
         Matcher matcher = pattern.matcher(stringtoLookAt);
 
         return matcher.find();
-        // return matcher.lookingAt();
     }
 }

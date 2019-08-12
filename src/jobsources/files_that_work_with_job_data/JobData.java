@@ -19,6 +19,7 @@ public class JobData implements Serializable {
     private String applyType = "";
     private String datePosted = "";
     private String rejected = "";
+    private String jobID = "";
     private Integer numberOfDaysPosted = 0;
     private JobSiteData jobSiteData;
     private StringTools stringTools;
@@ -28,11 +29,14 @@ public class JobData implements Serializable {
     private ArrayList<String> linesWithGoodKeywords = new ArrayList<>();
     private ArrayList<String> jobDescriptionText = new ArrayList<>();
     private boolean dontShowJob = false;
+    private boolean meetsCriteria = false;
     private RegExLookAt regExLookAt = new RegExLookAt();
     private YearsOfExperienceFilter yearsOfExperienceFilter = new YearsOfExperienceFilter();
+    private ShowJobsCriteria showJobsCriteria = new ShowJobsCriteria();
 
 
     public JobData(String link) {
+        setJobID(link);
         jobSiteData = new JobSiteData();
         stringTools = new StringTools();
 
@@ -71,6 +75,9 @@ public class JobData implements Serializable {
                     setDontShowJob(linesFromJobDescription);
                     setLinesWithGoodKeywords(linesFromJobDescription);
                 }
+
+                setMeetsCriteria(this);
+                setCriteriaRejection();
             }
 
         } else {
@@ -78,6 +85,27 @@ public class JobData implements Serializable {
             applyType = "ApplyType: Not connected to site.";
             jobTitle = "JobTitle: Not connected to site.";
         }
+    }
+
+    private void setMeetsCriteria(JobData jobData) {
+        meetsCriteria = showJobsCriteria.meetsCriteria(jobData);
+    }
+
+    private void setCriteriaRejection() {
+        if(!showJobsCriteria.getRejected().isEmpty())
+        {
+            rejected = showJobsCriteria.getRejected();
+        }
+    }
+
+
+    public boolean getMeetsCriteria() {
+        return meetsCriteria;
+    }
+
+    private void setJobID(String link) {
+        StringTools stringTools = new StringTools();
+        jobID = stringTools.removeEverythingBeforeAndIncludingTerm(link, "jobListingId=");
     }
 
     private void setDontShowJob(String lineFromJobDescription) {
@@ -252,5 +280,9 @@ public class JobData implements Serializable {
 
     public String getRejectedString() {
         return rejected;
+    }
+
+    public String getJobID() {
+        return jobID;
     }
 }

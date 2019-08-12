@@ -2,7 +2,6 @@ package jobsources.gui;
 
 import jobsources.SearchThread;
 import jobsources.files_that_work_with_job_data.JobData;
-import jobsources.read_write_to_files.JobDataObjectsFile;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -20,7 +19,7 @@ public class JButtonSearchGUI {
     private ArrayList<String> allJobLinks = new ArrayList<>();
     private LinkedHashMap<String, JobData> allJobsFromFile;
     //  private GlassDoor glassDoor;
-    private JobDataObjectsFile jobDataObjectsFile;
+   // private JobDataObjectsFile jobDataObjectsFile;
     private JComboBoxGUI jComboBoxNumberOfJobsToFind;
     private JobOptionsDialog jOptionsDialog;
 
@@ -29,8 +28,8 @@ public class JButtonSearchGUI {
         setActionListener();
         createTimer();
         this.allJobsJList = allJobsJList;
-        jobDataObjectsFile = new JobDataObjectsFile();
-        allJobsFromFile = jobDataObjectsFile.readObjectsFromFile();
+  //      jobDataObjectsFile = new JobDataObjectsFile();
+  //      allJobsFromFile = jobDataObjectsFile.readObjectsFromFile();
         this.jComboBoxNumberOfJobsToFind = jComboBoxNumberOfJobsToFind;
     }
 

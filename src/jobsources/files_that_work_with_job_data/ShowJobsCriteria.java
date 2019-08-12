@@ -1,9 +1,10 @@
 package jobsources.files_that_work_with_job_data;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-public class ShowJobsCriteria implements SearchCriteria {
+public class ShowJobsCriteria implements SearchCriteria, Serializable {
     private String rejected = "";
 
     public boolean meetsCriteria(JobData jd) {

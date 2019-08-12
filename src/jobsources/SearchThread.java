@@ -4,7 +4,6 @@ package jobsources;
 import jobsources.files_that_work_with_job_data.JobData;
 import jobsources.gui.JComboBoxGUI;
 import jobsources.read_write_to_files.FileWrite;
-import jobsources.read_write_to_files.JobDataObjectsFile;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -17,7 +16,7 @@ public class SearchThread implements Runnable {
     private JButton searchButton;
     private LinkedHashMap<String, JobData> allJobsFromFile;
     private ArrayList<String> allJobLinks = new ArrayList<>();
-    private JobDataObjectsFile jobDataObjectsFile;
+  //  private JobDataObjectsFile jobDataObjectsFile;
     private JList<String> allJobsJList; // = new JList();
     private FileWrite fileWrite;
     private String searchTerm;
@@ -27,8 +26,8 @@ public class SearchThread implements Runnable {
     public SearchThread(JButton searchButton, JList allJobsJlist, String searchTerm, JComboBoxGUI jComboBoxNumberOfJobsToFind) throws IOException, InterruptedException {
         this.searchButton = searchButton;
 
-        jobDataObjectsFile = new JobDataObjectsFile();
-        allJobsFromFile = jobDataObjectsFile.readObjectsFromFile();
+    //    jobDataObjectsFile = new JobDataObjectsFile();
+    //    allJobsFromFile = jobDataObjectsFile.readObjectsFromFile();
         // allJobsJlist = new JList();
         this.allJobsJList = allJobsJlist;
         //fileWrite = new FileWrite("job-links.txt");
