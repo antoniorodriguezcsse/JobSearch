@@ -5,16 +5,11 @@ import jobsources.files_that_work_with_job_data.JobData;
 import java.io.Serializable;
 import java.util.Comparator;
 
-public class SortbyRank implements Comparator<JobData>, Serializable {
+public class SortbyJobID implements Comparator<JobData>, Serializable {
     @Override
     public int compare(JobData a, JobData b) {
-        return b.getRank() - a.getRank();
+        return b.getJobID().compareTo(a.getJobID());
     }
 
-    @Override
-    public Comparator<JobData> reversed() {
-        return null;
-    }
+
 }
-
-
