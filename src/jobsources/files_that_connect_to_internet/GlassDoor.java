@@ -47,7 +47,7 @@ public class GlassDoor {
                 System.out.println("site: " + s);
 
                 if (jobDuplicateChecker.isDuplicate(s)) {
-                    System.out.println("***DUPLICATE FOUND***: " + s);
+                    System.out.println("***DUPLICATE FOUND***");
                     continue;
                 }
 

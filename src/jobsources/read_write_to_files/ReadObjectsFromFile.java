@@ -34,6 +34,12 @@ public class ReadObjectsFromFile implements Serializable {
             e.printStackTrace();
         }
 
+        for (JobData jd : jobDataTreeSet) {
+            if (jd.getDatePosted().isEmpty()) {
+                continue;
+            }
+            jd.setNumberOfDaysPosted();
+        }
         return jobDataTreeSet;
     }
 }
