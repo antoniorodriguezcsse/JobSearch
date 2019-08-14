@@ -59,7 +59,6 @@ public class JobRanker implements Serializable {
     private void setNumberOfDaysPostedPoints() {
         StringTools stringTools = new StringTools();
         numberOfDaysPostedPoints = numberOfDaysPosted;
-
     }
 
     private void setApplyTypePoints() {

@@ -12,6 +12,10 @@ public class ShowJobsCriteria implements SearchCriteria, Serializable {
             return false;
         }
 
+        if (jd.isApplied()) {
+            return false;
+        }
+
         int minimumRank = -10;
         if (jd.getRank() < minimumRank) {
             rejected = "REJECTED: Job rank is less than " + jd.getRank();
@@ -34,18 +38,16 @@ public class ShowJobsCriteria implements SearchCriteria, Serializable {
         }
 
         int daysSincePost = 7;
-        if(jd.getNumberOfDaysPosted() <= daysSincePost)
-        {
+        if (jd.getNumberOfDaysPosted() <= daysSincePost) {
             rejected = "REJECTED: Post is older than " + daysSincePost + " days.";
             return true;
-        }
-        else {
+        } else {
             return false;
         }
+
     }
 
-    public String getRejected()
-    {
+    public String getRejected() {
         return rejected;
     }
 }

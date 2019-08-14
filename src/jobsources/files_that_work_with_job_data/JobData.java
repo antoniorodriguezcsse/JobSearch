@@ -34,6 +34,8 @@ public class JobData implements Serializable {
     private YearsOfExperienceFilter yearsOfExperienceFilter = new YearsOfExperienceFilter();
     private ShowJobsCriteria showJobsCriteria = new ShowJobsCriteria();
 
+    private boolean applied = false;
+
 
     public JobData(String link) {
         setJobID(link);
@@ -72,7 +74,7 @@ public class JobData implements Serializable {
                     if (dontShowJob) {
                         continue;
                     }
-                    setDontShowJob(linesFromJobDescription);
+                    setDontShowJobFromLine(linesFromJobDescription);
                     setLinesWithGoodKeywords(linesFromJobDescription);
                 }
 
@@ -92,12 +94,19 @@ public class JobData implements Serializable {
     }
 
     private void setCriteriaRejection() {
-        if(!showJobsCriteria.getRejected().isEmpty())
-        {
+        if (!showJobsCriteria.getRejected().isEmpty()) {
             rejected = showJobsCriteria.getRejected();
         }
     }
 
+    public boolean isApplied() {
+        return applied;
+    }
+
+    public void setApplied(boolean applied) {
+        this.applied = applied;
+        setMeetsCriteria(this);
+    }
 
     public boolean getMeetsCriteria() {
         return meetsCriteria;
@@ -108,13 +117,19 @@ public class JobData implements Serializable {
         jobID = stringTools.removeEverythingBeforeAndIncludingTerm(link, "jobListingId=");
     }
 
-    private void setDontShowJob(String lineFromJobDescription) {
+    private void setDontShowJobFromLine(String lineFromJobDescription) {
         if (dontShowJob) {
             return;
         }
 
         dontShowKeywordsFilter(lineFromJobDescription);
         experienceFilter(lineFromJobDescription);
+    }
+
+    public void setDontShowJob(boolean dontShow)
+    {
+        this.dontShowJob = dontShow;
+        setMeetsCriteria(this);
     }
 
     private void experienceFilter(String lineFromJobDescription) {
@@ -159,6 +174,10 @@ public class JobData implements Serializable {
         return stringWithLeadingNumber.contains("years") || stringWithLeadingNumber.contains("yrs");
     }
 
+    public void setDontShowJobFromLine(boolean dontShowJob) {
+        this.dontShowJob = dontShowJob;
+    }
+
     Boolean dontShowJob() {
         return dontShowJob;
     }
@@ -184,7 +203,7 @@ public class JobData implements Serializable {
         return rank;
     }
 
-    private void setNumberOfDaysPosted() {
+    public void setNumberOfDaysPosted() {
         String todaysDate = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
         numberOfDaysPosted = Integer.valueOf(getDifferenceBetweenDates(todaysDate, getDatePosted(), "yyyy-MM-dd"));
     }
