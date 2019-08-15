@@ -1,7 +1,6 @@
 package jobsources.gui;
 
 import jobsources.files_that_work_with_job_data.JobData;
-import jobsources.read_write_to_files.JobDataObjectsFile;
 
 import javax.swing.*;
 import java.awt.*;
@@ -83,7 +82,7 @@ public class GlassDoorJobSearchGUI extends JFrame {
     }
 
     private void readJobsFromFileToTabbedView() {
-        JobDataObjectsFile jobDataObjectsFile = new JobDataObjectsFile();
+      //  JobDataObjectsFile jobDataObjectsFile = new JobDataObjectsFile();
         ArrayList<JobData> jobDatafromFile = new ArrayList<>();
         /////////////////////////////////////////////// jobDatafromFile.addAll(jobDataObjectsFile.readObjectsFromFile());
 

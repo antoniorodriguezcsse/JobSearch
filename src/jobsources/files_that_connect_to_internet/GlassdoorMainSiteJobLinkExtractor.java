@@ -28,9 +28,6 @@ public class GlassdoorMainSiteJobLinkExtractor extends AbstractMainSiteJobLinkEx
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (CustomExceptions c) {
-//            if (allJobLinks.size() == 0) {
-//                throw new CustomExceptions("GlassdoorMainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite: Connection error.");
-//            }
             setNextMainSite();
             listOfJobLinksAndNextMainSite.put(allJobLinks,getNextMainSite());
             return listOfJobLinksAndNextMainSite;
@@ -95,12 +92,15 @@ public class GlassdoorMainSiteJobLinkExtractor extends AbstractMainSiteJobLinkEx
         Elements jobContainer = html.select("div.jobContainer");
         Elements list = jobContainer.select("a.jobLink.jobInfoItem.jobTitle");
         Set<String> noDuplicateJobLinks = new HashSet<>();
+
         String jobLink = "";
         for (Element element : list) {
+
             if (!element.attr("href").contains("https")) {
                 jobLink = "https://www.glassdoor.com" + element.attr("href");
             } else {
                 jobLink = element.attr("href");
+                System.out.println("link: " + jobLink);
             }
 
             noDuplicateJobLinks.add(jobLink);

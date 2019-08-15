@@ -2,6 +2,7 @@ package jobsources.files_that_work_with_job_data;
 
 import jobsources.RegExLookAt;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,22 +11,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-class YearsOfExperienceFilter {
+class YearsOfExperienceFilter implements Serializable {
     private RegExLookAt regExLookAt = new RegExLookAt();
-    private TreeSet<String> words = new TreeSet<>();
     private TreeSet<String> wordsFromLine = new TreeSet<>();
     private HashMap<String, String> numbers = new HashMap<>();
-    //  private String lowerCaseLineOfJobDescription;
 
     private TreeSet<String> hyphen = new TreeSet<>();
+
+    private transient Pattern pattern;
+    private transient Matcher matcher;
 
     //work on lines that only contain numbers,
     boolean showJobFilter(String lineFromJobDescription, final int yearsOfExperience) {
         setupNumberHashMap();
         String lowerCaseLineFromDescription = lineFromJobDescription.toLowerCase();
         int numberFromJobDescription = 0;
-        if (stringContainsExperienceNumberAndYear(lowerCaseLineFromDescription)) {
 
+        if (stringContainsExperienceNumberAndYear(lowerCaseLineFromDescription)) {
             if (lineContainsNumber(lowerCaseLineFromDescription)) {
                 if (stringContainsNumberWithHyphenAndSpace(lowerCaseLineFromDescription)) {
                     lineFromJobDescription = removeSpaceBetweenNumbersAndHyphen(lowerCaseLineFromDescription);
@@ -71,7 +73,6 @@ class YearsOfExperienceFilter {
     }
 
     private String deleteCharacterBeforeFirstNumberOrLetter(String lineFromJobDescription) {
-        // int indexOfFirstLetter = findIndexOfFirstLetter(lineFromJobDescription);
         int indedOfFirstNumber = findIndexOfFirstNumber(lineFromJobDescription);
 
         StringBuilder stringBuilder = new StringBuilder(lineFromJobDescription);
@@ -84,19 +85,20 @@ class YearsOfExperienceFilter {
     }
 
     private int findIndexOfFirstLetter(String string) {
-        Pattern p = Pattern.compile("[a-zA-z]");
-        Matcher m = p.matcher(string);
-        if (m.find()) {
-            return m.start();
+        pattern = Pattern.compile("[a-zA-z]");
+        matcher = pattern.matcher(string);
+
+        if (matcher.find()) {
+            return matcher.start();
         }
         return -1;
     }
 
     private int findIndexOfFirstNumber(String string) {
-        Pattern p = Pattern.compile("[0-9]");
-        Matcher m = p.matcher(string);
-        if (m.find()) {
-            return m.start();
+        pattern = Pattern.compile("[0-9]");
+        matcher = pattern.matcher(string);
+        if (matcher.find()) {
+            return matcher.start();
         }
 
         Integer m1 = FindLocationOfWordNumber(string);
@@ -105,20 +107,22 @@ class YearsOfExperienceFilter {
     }
 
     private Integer FindLocationOfWordNumber(String string) {
-        Pattern p;
-        Matcher m;
         String[] numberVariations = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"};
         for (String numberVariation : numberVariations) {
-            p = Pattern.compile(numberVariation);
-            m = p.matcher(string);
-            if (m.find()) {
-                return m.start();
+            pattern = Pattern.compile(numberVariation);
+            matcher = pattern.matcher(string);
+            if (matcher.find()) {
+                return matcher.start();
             }
         }
         return -1;
     }
 
     private int extractNumberFromString(String lineFromJobDescription) {
+        if (!lineFromJobDescription.matches(".*\\d.*")) {
+            return -1;
+        }
+
         StringBuilder stringBuilder = new StringBuilder(lineFromJobDescription);
         char firstCharacter = lineFromJobDescription.charAt(0);
 
@@ -133,6 +137,13 @@ class YearsOfExperienceFilter {
         } else {
             int indexOfFirstNumber = findIndexOfFirstNumber(lineFromJobDescription);
             stringBuilder.replace(0, indexOfFirstNumber, "");
+
+            if (stringBuilder.length() == 1) {
+                if (Character.isDigit(stringBuilder.charAt(0))) {
+                    return Integer.parseInt(stringBuilder.toString());
+                }
+            }
+
             char secondCharacter = stringBuilder.charAt(1);
 
             if (Character.isDigit(secondCharacter)) {
@@ -157,8 +168,9 @@ class YearsOfExperienceFilter {
         return regExLookAt.regExPatternMatch(lineFromJobDescription, ".*\\d\\s+-\\s+\\d");
     }
 
-    public boolean stringContainsExperienceNumberAndYear(String string) {
-        setWordsInToTreeSets(string.toLowerCase());
+    boolean stringContainsExperienceNumberAndYear(String string) {
+        wordsFromLine = extractWords(string.toLowerCase());
+
         if (!lineContainsExperience()) {
             return false;
         }
@@ -199,6 +211,8 @@ class YearsOfExperienceFilter {
     private boolean lineContainsYears() {
         String[] yearVariations = {"year", "years", "yrs", "yrs."};
 
+        seperateWordAndNumber();
+
         for (String s : yearVariations) {
             if (!wordsFromLine.add(s)) {
                 return true;
@@ -208,9 +222,24 @@ class YearsOfExperienceFilter {
         return false;
     }
 
-    private void setWordsInToTreeSets(String string) {
+    private void seperateWordAndNumber() {
+        for (String s : wordsFromLine) {
+            if (s.matches(".*[a-zA-Z]+.*")) {
+                int number = extractNumberFromString(s);
+                if (number != -1) {
+                    wordsFromLine.remove(s);
+
+                    String buffer = s.replace(String.valueOf(number), "");
+                    wordsFromLine.add(String.valueOf(number));
+                    wordsFromLine.add(buffer);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void setWordsInToTreeSet(String string) {
         wordsFromLine = extractWords(string);
-        words.addAll(wordsFromLine);
     }
 
     private String removeSpaceBetweenNumbersAndHyphen(String string) {
@@ -224,10 +253,6 @@ class YearsOfExperienceFilter {
 
         String[] splitWords = specialCharactcersRemoved.split("\\s+");
         return new TreeSet<String>(Arrays.asList(splitWords));
-    }
-
-    public TreeSet<String> getWords() {
-        return words;
     }
 
     private TreeSet<String> getHyphen() {
