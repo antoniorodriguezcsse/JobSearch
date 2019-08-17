@@ -126,8 +126,7 @@ public class JobData implements Serializable {
         experienceFilter(lineFromJobDescription);
     }
 
-    public void setDontShowJob(boolean dontShow)
-    {
+    public void setDontShowJob(boolean dontShow) {
         this.dontShowJob = dontShow;
         setMeetsCriteria(this);
     }

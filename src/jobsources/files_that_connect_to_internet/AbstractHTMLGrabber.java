@@ -15,7 +15,7 @@ import java.io.IOException;
         Document documentFromFile;
         try {
             if(mainSite.contains("https://")) {
-                html = Jsoup.connect(mainSite).timeout(30 * 1000).get();
+                html = Jsoup.connect(mainSite).userAgent("Mozilla").timeout(30000).get();
             }
             else{
                 File input = new File(mainSite);
