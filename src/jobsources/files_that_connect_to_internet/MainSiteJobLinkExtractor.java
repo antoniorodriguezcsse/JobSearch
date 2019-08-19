@@ -9,7 +9,7 @@ import java.util.TreeSet;
 public class MainSiteJobLinkExtractor extends AbstractHTMLGrabber {
     TreeSet<String> allJobLinks = new TreeSet<>();
 
-  private String nextMainSite;
+    private String nextMainSite;
     Elements jobContainer;
     private String site;
 
@@ -30,6 +30,7 @@ public class MainSiteJobLinkExtractor extends AbstractHTMLGrabber {
         try {
             System.out.println("trying to connect to: " + mainSite);
             if (connectToMainWebSite(mainSite).equals("Connected.")) {
+                allJobLinks.clear();
                 if (mainSite.contains("glassdoor")) {
                     setupGlassdoor();
                 }
@@ -45,7 +46,8 @@ public class MainSiteJobLinkExtractor extends AbstractHTMLGrabber {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (CustomExceptions c) {
-            setNextMainSite();
+          //  setNextMainSite();
+            c.printStackTrace();
             return allJobLinks;
         }
         setNextMainSite();
@@ -54,41 +56,57 @@ public class MainSiteJobLinkExtractor extends AbstractHTMLGrabber {
 
     protected void setAllJobLinksFromMainSite() {
         for (Element e : jobContainer) {
-            allJobLinks.add(site + e.attr("href"));
+            allJobLinks.add(e.attr("href"));
         }
     }
 
     private void setNextMainSite() {
-        if(nextMainSite.isEmpty()){
+        if (nextMainSite.isEmpty()) {
             nextMainSite = "no more pages";
-            return;
         }
-
-        nextMainSite = site +  nextMainSite;
     }
 
-    private void setupGlassdoor() {
+    private void setupGlassdoor() throws CustomExceptions {
+//        jobContainer = html.select("div.jobContainer").select("a[href]");
+//        nextMainSite = html.select("li.next").select("a[href]").attr("href");
         jobContainer = html.select("div.jobContainer").select("a[href]");
-        site = "https://www.glassdoor.com";
-        nextMainSite = html.select("li.next").select("a[href]").attr("href");
+
+        Elements bottomBar = html.select("div.pageNavBar.noMargBot");
+        if(bottomBar.isEmpty())
+        {
+            throw new CustomExceptions("MainSiteJobLinkExtractor: div.pageNavBar.noMargBot can't be found.");
+
+
+        }
+     //   System.out.println("bottomBar: " + bottomBar);
+
+       Elements nextButton = html.select("li.next");
+//
+//        System.out.println("nextbutton good: " + nextButton.next());
+//        System.out.println("nextbutton bad: " + html.select("asdf").text());
+//        if(nextButton.isEmpty()){
+//            throw  new CustomExceptions("glassdoor li.next cant be found");
+//        }
+
+        nextMainSite = nextButton .select("a[href]").attr("href");
+//        System.out.println("site good: " + html.select("li.next"));
+//      System.out.println("Site: " + html.select("li.basf"));
     }
 
     private void setupIndeed() {
         jobContainer = html.select("div.title").select("a[href]");
-        site = "https://www.indeed.com";
 
         Elements links = html.select("div.pagination").select("a[href]");
         if (links.last() == null || links.isEmpty() || !links.last().toString().contains("&nbsp;")) {
             nextMainSite = "";
-        }
-        else {
+        } else {
             nextMainSite = links.last().attr("href");
         }
     }
 
-
     private String connectToMainWebSite(String website) throws CustomExceptions {
-        if (!website.contains("https://www.glassdoor.com") && !website.isEmpty() && !website.contains("websiteTest") && !website.contains("https://www.indeed.com")) {
+        if (!website.contains("https://www.glassdoor.com") && !website.isEmpty() && !website.contains("TestingGlassdoor")
+                && !website.contains("https://www.indeed.com") && !website.contains("TestingIndeed")) {
             throw new CustomExceptions("GlassdoorMainSiteJobLinkExtractor.connectToMainWebSite: Not a glassdoor link.");
         }
 
