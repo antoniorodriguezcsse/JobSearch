@@ -112,8 +112,6 @@ class GlassdoorMainSiteJobLinkExtractorTest {
                 }
             }
         });
-
-        System.out.println("hello");
     }
 //    void accessPrivateMethod(String methodName) {
 //        try {
