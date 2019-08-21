@@ -16,8 +16,8 @@ public class ShowJobsCriteria implements SearchCriteria, Serializable {
             return false;
         }
 
-        int minimumRank = -10;
-        if (jd.getRank() < minimumRank) {
+        int minimumRank = 0;
+        if (jd.getRank() <= minimumRank) {
             rejected = "REJECTED: Job rank is less than " + jd.getRank();
             return false;
         }

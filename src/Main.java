@@ -6,7 +6,6 @@ import jobsources.read_write_to_files.ReadObjectsFromFile;
 import jobsources.read_write_to_files.WriteObjectsToFile;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Scanner;
 import java.util.TreeSet;
 
@@ -46,17 +45,16 @@ class Main {
 
             if (userInput.equals(applyToJobs)) {
                 allJobs = getJobsFromFile();
-                ArrayList<JobData> copyAllJobs = new ArrayList<>(allJobs);
+                int numberOfJobsApplied = 0;
 
-                for (Iterator<JobData> iterator = allJobs.iterator(); iterator.hasNext();)
-               /* for (JobData jd : allJobs) */{
-                   JobData jd = iterator.next();
+                for (JobData jd : allJobs) {
                     if (jd.getMeetsCriteria()) {
                         System.out.println("Link: " + jd.getJobLink());
-                        System.out.println("Rank: " + jd.getRank());
                         System.out.println("Title: " + jd.getJobTitle());
+                        System.out.println("Rank: " + jd.getRank());
                         System.out.println("Applied: " + jd.isApplied());
                         System.out.println("Date Posted: " + jd.getDatePosted());
+                        System.out.println("Number of Jobs applied to: " + numberOfJobsApplied);
 
                         System.out.println("");
                         System.out.println("Press 'a' to set as applied, 'v' to view applied jobs, 'd' to never show again, 'n' to see next job, or 'q' to quit");
@@ -67,6 +65,7 @@ class Main {
                             continue;
                         }
                         if (userInput.equals("a")) {
+                            numberOfJobsApplied++;
                             jd.setApplied(true);
                         }
 
@@ -90,9 +89,6 @@ class Main {
                         }
                     }
                 }
-
-                System.out.println("number of jobs found: " + allJobs.size());
-
             }
 
             System.out.println("");
