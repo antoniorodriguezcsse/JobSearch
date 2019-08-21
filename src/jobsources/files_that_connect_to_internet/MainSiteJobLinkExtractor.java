@@ -46,7 +46,7 @@ public class MainSiteJobLinkExtractor extends AbstractHTMLGrabber {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (CustomExceptions c) {
-          //  setNextMainSite();
+            //  setNextMainSite();
             c.printStackTrace();
             return allJobLinks;
         }
@@ -67,30 +67,30 @@ public class MainSiteJobLinkExtractor extends AbstractHTMLGrabber {
     }
 
     private void setupGlassdoor() throws CustomExceptions {
-//        jobContainer = html.select("div.jobContainer").select("a[href]");
-//        nextMainSite = html.select("li.next").select("a[href]").attr("href");
         jobContainer = html.select("div.jobContainer").select("a[href]");
 
-        Elements bottomBar = html.select("div.pageNavBar.noMargBot");
-        if(bottomBar.isEmpty())
-        {
-            throw new CustomExceptions("MainSiteJobLinkExtractor: div.pageNavBar.noMargBot can't be found.");
-
-
+        Elements barWithNumberOfPages = html.select("div.cell.middle.hideMob.padVertSm");
+        if(barWithNumberOfPages.text().equals("Page 1 of 1")){
+            nextMainSite = "no more pages";
+            return;
         }
-     //   System.out.println("bottomBar: " + bottomBar);
 
-       Elements nextButton = html.select("li.next");
-//
-//        System.out.println("nextbutton good: " + nextButton.next());
-//        System.out.println("nextbutton bad: " + html.select("asdf").text());
-//        if(nextButton.isEmpty()){
-//            throw  new CustomExceptions("glassdoor li.next cant be found");
-//        }
+        Elements pageNavigationBarBottom = html.select("div.pageNavBar.noMargBot");
+        if (pageNavigationBarBottom.isEmpty()) {
+            throw new CustomExceptions("MainSiteJobLinkExtractor: div.pageNavBar.noMargBot can't be found.");
+        }
 
-        nextMainSite = nextButton .select("a[href]").attr("href");
-//        System.out.println("site good: " + html.select("li.next"));
-//      System.out.println("Site: " + html.select("li.basf"));
+        Elements pagingControlMiddle = pageNavigationBarBottom.select("div.pagingControls.cell.middle");
+        if (pagingControlMiddle.isEmpty()) {
+            throw new CustomExceptions(("MainSiteJobLinkExtractor: div.pagingControls.cell.middle can't be found."));
+        }
+
+        Elements nextButton = html.select("li.next");
+        if (nextButton.isEmpty()) {
+            throw new CustomExceptions("glassdoor li.next cant be found");
+        }
+
+        nextMainSite = nextButton.select("a[href]").attr("href");
     }
 
     private void setupIndeed() {

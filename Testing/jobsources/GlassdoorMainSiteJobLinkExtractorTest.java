@@ -90,12 +90,12 @@ class GlassdoorMainSiteJobLinkExtractorTest {
     @Test
     void cantFindDivElements() throws CustomExceptions, InvocationTargetException, IllegalAccessException {
 //        //on last page no more next pages
-//        mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "glassdoor_getNextPage_DoesNotHaveANextPage.htm");
-//        assertEquals("no more pages", mainSiteJobLinkExtractor.getNextMainSite());
-//
-//        //no next pages at all
-//        mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "glassdoor_getNextPage_DoesNotHaveAnySubpages.htm");
-//        assertEquals("no more pages", mainSiteJobLinkExtractor.getNextMainSite());
+        mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "glassdoor_getNextPage_DoesNotHaveANextPage.htm");
+        assertEquals("no more pages", mainSiteJobLinkExtractor.getNextMainSite());
+
+        //no next pages at all
+        mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "glassdoor_getNextPage_DoesNotHaveAnySubpages.htm");
+        assertEquals("no more pages", mainSiteJobLinkExtractor.getNextMainSite());
 
 
         //can't find paging control
@@ -108,6 +108,20 @@ class GlassdoorMainSiteJobLinkExtractorTest {
                 method.invoke(mainSiteJobLinkExtractor);
             } catch (InvocationTargetException e) {
                 if (e.getCause().toString().equals("jobsources.CustomExceptions: MainSiteJobLinkExtractor: div.pageNavBar.noMargBot can't be found.")) {
+                    throw e.getCause();
+                }
+            }
+        });
+
+        assertThrows(jobsources.CustomExceptions.class, () -> {
+            mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "glassdoor(MainSite)_cantFindPagingControls.htm");
+            accessPrivateMethod("setupGlassdoor");
+            method.setAccessible(true);
+
+            try {
+                method.invoke(mainSiteJobLinkExtractor);
+            } catch (InvocationTargetException e) {
+                if (e.getCause().toString().equals("jobsources.CustomExceptions: MainSiteJobLinkExtractor: div.pagingControls.cell.middle can't be found.")) {
                     throw e.getCause();
                 }
             }
