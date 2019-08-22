@@ -108,12 +108,12 @@ public class JobRanker implements Serializable {
         return map;
     }
 
-    private Map<String, Integer> addToHashMap(Map<String, Integer> map, String word) {
+    private void addToHashMap(Map<String, Integer> map, String word) {
         if (map.isEmpty()) {
             map.put(word, 1);
         } else {
             Iterator<Map.Entry<String, Integer>> iterator = map.entrySet().iterator();
-            Boolean wordIsInMap = false;
+            boolean wordIsInMap = false;
             // Iterate over the HashMap
             while (iterator.hasNext()) {
                 // Get the entry at this iteration
@@ -133,10 +133,9 @@ public class JobRanker implements Serializable {
                 map.put(word, 1);
             }
         }
-        return map;
     }
 
-    public static TreeSet<String> lowercaseTreeSet(TreeSet<String> strings) {
+    private static TreeSet<String> lowercaseTreeSet(TreeSet<String> strings) {
         TreeSet<String> buffer = new TreeSet<>();
         for (String string : strings)
             buffer.add(string.toLowerCase());

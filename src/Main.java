@@ -57,7 +57,7 @@ class Main {
                         System.out.println("Number of Jobs applied to: " + numberOfJobsApplied);
 
                         System.out.println("");
-                        System.out.println("Press 'a' to set as applied, 'v' to view applied jobs, 'd' to never show again, 'n' to see next job, or 'q' to quit");
+                        System.out.println("Press 'a' to set as applied, 'v' to view applied jobs, 'd' or enter to never show again, 'n' to see next job, or 'q' to quit");
                         System.out.print("Enter input: ");
                         userInput = keyboard.nextLine();
 
@@ -69,7 +69,7 @@ class Main {
                             jd.setApplied(true);
                         }
 
-                        if (userInput.equals("d")) {
+                        if (userInput.equals("d")|| userInput.equals("")) {
                             jd.setDontShowJob(true);
                         }
                         if (userInput.equals("v")) {
