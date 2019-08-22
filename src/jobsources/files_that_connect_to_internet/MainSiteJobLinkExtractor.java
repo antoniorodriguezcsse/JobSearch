@@ -95,8 +95,8 @@ public class MainSiteJobLinkExtractor extends AbstractHTMLGrabber {
 
     private void setupIndeed() {
         jobContainer = html.select("div.title").select("a[href]");
-
         Elements links = html.select("div.pagination").select("a[href]");
+
         if (links.last() == null || links.isEmpty() || !links.last().toString().contains("&nbsp;")) {
             nextMainSite = "";
         } else {
