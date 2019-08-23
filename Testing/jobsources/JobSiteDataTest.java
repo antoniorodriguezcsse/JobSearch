@@ -41,38 +41,38 @@ class JobSiteDataTest {
         assertEquals("Job title has not been set.", jobSiteData.getHTMLTitle());
     }
 
-    @Test
-    void getBulletPoints() throws IOException {
-        FileRead fileRead = new FileRead();
-        ArrayList<String> expected = fileRead.getLinesFromFile(path + "bulletPoints.txt");
+//    @Test
+//    void getBulletPoints() throws IOException {
+//        FileRead fileRead = new FileRead();
+//        ArrayList<String> expected = fileRead.getLinesFromFile(path + "bulletPoints.txt");
+//
+//        ArrayList<String> bulletPoints = new ArrayList<>();
+//
+//        ArrayList<String> jobSites = new ArrayList<>();
+//        jobSites.add(path + "jobsite1.htm");
+//        jobSites.add(path + "companySite.htm");
+//        jobSites.add(path + "easyApply.htm");
+//        jobSites.add(path + "partnerSite.htm");
+//
+//        ArrayList<String> actual = new ArrayList<>();
+//
+//        for (String jobSite : jobSites) {
+//            jobSiteData.connectToJobSite(jobSite);
+//            bulletPoints = jobSiteData.getBulletPoints();
+//
+//            actual.add("***Title*** " + jobSiteData.getHTMLTitle());
+//            actual.addAll(bulletPoints);
+//        }
+//
+//        assertEquals(expected, actual);
+//    }
 
-        ArrayList<String> bulletPoints = new ArrayList<>();
-
-        ArrayList<String> jobSites = new ArrayList<>();
-        jobSites.add(path + "jobsite1.htm");
-        jobSites.add(path + "companySite.htm");
-        jobSites.add(path + "easyApply.htm");
-        jobSites.add(path + "partnerSite.htm");
-
-        ArrayList<String> actual = new ArrayList<>();
-
-        for (String jobSite : jobSites) {
-            jobSiteData.connectToJobSite(jobSite);
-            bulletPoints = jobSiteData.getBulletPoints();
-
-            actual.add("***Title*** " + jobSiteData.getHTMLTitle());
-            actual.addAll(bulletPoints);
-        }
-
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    void getBulletPoints_WhenDataHasntBeenSet_returnDidntConnectToSite() {
-        ArrayList<String> actual = new ArrayList<>();
-        actual.add(("Site has not been connected."));
-        assertEquals(jobSiteData.getBulletPoints(), actual);
-    }
+//    @Test
+//    void getBulletPoints_WhenDataHasntBeenSet_returnDidntConnectToSite() {
+//        ArrayList<String> actual = new ArrayList<>();
+//        actual.add(("Site has not been connected."));
+//        assertEquals(jobSiteData.getBulletPoints(), actual);
+//    }
 
     @Test
     void setAllText_ItReturnsAllLinesFromSite_arrayListOfLinesFromSite() throws IOException {

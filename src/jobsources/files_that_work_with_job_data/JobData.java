@@ -259,14 +259,14 @@ public class JobData implements Serializable {
         return datePosted;
     }
 
-    ArrayList<String> getBulletPoints() {
-        if (jobSiteData.getBulletPoints().isEmpty()) {
-            ArrayList<String> noDescription = new ArrayList<>();
-            noDescription.add("Description was empty.");
-            return noDescription;
-        }
-        return jobSiteData.getBulletPoints();
-    }
+//    ArrayList<String> getBulletPoints() {
+//        if (jobSiteData.getBulletPoints().isEmpty()) {
+//            ArrayList<String> noDescription = new ArrayList<>();
+//            noDescription.add("Description was empty.");
+//            return noDescription;
+//        }
+//        return jobSiteData.getBulletPoints();
+//    }
 
     public String getJobLink() {
         if (jobLink == null) {

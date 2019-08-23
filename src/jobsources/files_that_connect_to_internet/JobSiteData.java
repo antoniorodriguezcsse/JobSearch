@@ -21,28 +21,28 @@ public class JobSiteData extends AbstractJobSiteData {
         }
     }
 
-    @Override
-    public ArrayList<String> getBulletPoints() {
-        if (parsedHTML == null) {
-            bulletPoints.add("Site has not been connected.");
-            return bulletPoints;
-        }
-        if (bulletPoints.size() > 0) {
-            bulletPoints.clear();
-        }
-
-        Elements jobBodyElements = parsedHTML.select("div.jobDescriptionContent.desc");
-        Elements list = jobBodyElements.select("li");
-
-        for (Element element : list) {
-            bulletPoints.add(element.text());
-        }
-
-        if (bulletPoints.isEmpty()) {
-            bulletPoints.add("No bullet points found.");
-        }
-        return bulletPoints;
-    }
+//    @Override
+//    public ArrayList<String> getBulletPoints() {
+//        if (parsedHTML == null) {
+//            bulletPoints.add("Site has not been connected.");
+//            return bulletPoints;
+//        }
+//        if (bulletPoints.size() > 0) {
+//            bulletPoints.clear();
+//        }
+//
+//        Elements jobBodyElements = parsedHTML.select("div.jobDescriptionContent.desc");
+//        Elements list = jobBodyElements.select("li");
+//
+//        for (Element element : list) {
+//            bulletPoints.add(element.text());
+//        }
+//
+//        if (bulletPoints.isEmpty()) {
+//            bulletPoints.add("No bullet points found.");
+//        }
+//        return bulletPoints;
+//    }
 
     @Override
     void setAllText() {

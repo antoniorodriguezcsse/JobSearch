@@ -14,7 +14,7 @@ abstract class AbstractJobSiteData extends AbstractHTMLGrabber implements Serial
     ArrayList<String> allText = new ArrayList<>();
     String jobLink;
 
-    abstract public ArrayList<String> getBulletPoints();
+  //  abstract public ArrayList<String> getBulletPoints();
 
     abstract void setAllText();
 

@@ -4,7 +4,6 @@ import jobsources.files_that_connect_to_internet.MainSiteJobLinkExtractor;
 import jobsources.read_write_to_files.FileRead;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.TreeSet;
 
@@ -40,10 +39,11 @@ class GlassdoorMainSiteJobLinkExtractorTest {
             e.printStackTrace();
         }
     }
+
     void accessPrivateMethodOneParameter(String methodName) {
         try {
             method = MainSiteJobLinkExtractor.class.
-                    getDeclaredMethod(methodName,p);
+                    getDeclaredMethod(methodName, String.class);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
@@ -62,24 +62,6 @@ class GlassdoorMainSiteJobLinkExtractorTest {
         for (String s : jobLinks) {
             assertTrue(s.contains("https://www.indeed.com/"));
         }
-
-       // jobLinks = mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "not a valid link or name");
-
-        assertThrows(jobsources.CustomExceptions.class, () -> {
-          // mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "not a valid link or name");
-        //    accessPrivateMethod("setupGlassdoor");
-            accessPrivateMethod();
-            method.setAccessible(true);
-
-            try {
-                method.invoke(mainSiteJobLinkExtractor);
-            } catch (InvocationTargetException e) {
-                if (e.getCause().toString().equals("jobsources.CustomExceptions: MainSiteJobLinkExtractor: div.pageNavBar.noMargBot can't be found.")) {
-                    throw e.getCause();
-                }
-            }
-        });
-
     }
 
     @Test
@@ -110,36 +92,49 @@ class GlassdoorMainSiteJobLinkExtractorTest {
         //no pages at all
         mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(indeedPath + "indeed_getNextPage_DoesNotHaveAnySubpages.htm");
         assertEquals("no more pages", mainSiteJobLinkExtractor.getNextMainSite());
-
     }
 
     @Test
-    void cantFindDivElementsGlassdoor() throws CustomExceptions, InvocationTargetException, IllegalAccessException {
-        //can't find paging control
-        assertThrows(jobsources.CustomExceptions.class, () -> {
-            mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "glassdoor(MainSite)_cantFindPageNavigationBar.htm");
-            accessPrivateMethod("setupGlassdoor");
-            method.setAccessible(true);
+    void cantFindDivElementsGlassdoor() {
 
+        assertThrows(jobsources.CustomExceptions.class, () -> {
             try {
-                method.invoke(mainSiteJobLinkExtractor);
-            } catch (InvocationTargetException e) {
-                if (e.getCause().toString().equals("jobsources.CustomExceptions: MainSiteJobLinkExtractor: div.pageNavBar.noMargBot can't be found.")) {
-                    throw e.getCause();
+                mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite("invalid link");
+            } catch (CustomExceptions e) {
+                if (e.toString().equals("jobsources.CustomExceptions: MainSiteJobLinkExtractor.connectToMainWebSite: Could not connect to site.")) {
+                    throw e;
                 }
             }
         });
 
         assertThrows(jobsources.CustomExceptions.class, () -> {
-            mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "glassdoor(MainSite)_cantFindPagingControls.htm");
-            accessPrivateMethod("setupGlassdoor");
-            method.setAccessible(true);
-
             try {
-                method.invoke(mainSiteJobLinkExtractor);
-            } catch (InvocationTargetException e) {
-                if (e.getCause().toString().equals("jobsources.CustomExceptions: MainSiteJobLinkExtractor: div.pagingControls.cell.middle can't be found.")) {
-                    throw e.getCause();
+                mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "glassdoor(MainSite)_cantFindPageNavigationBar.htm");
+            } catch (CustomExceptions e) {
+                if (e.toString().equals("jobsources.CustomExceptions: CompanyHTMLElements: div.pageNavBar.noMargBot can't be found.")) {
+                    throw e;
+                }
+            }
+        });
+
+        assertThrows(jobsources.CustomExceptions.class, () -> {
+            try {
+                mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "glassdoor(MainSite)_cantFindPageNavigationBar.htm");
+            } catch (CustomExceptions e) {
+                if (e.toString().equals("jobsources.CustomExceptions: CompanyHTMLElements: div.pageNavBar.noMargBot can't be found.")) {
+                    throw e;
+                }
+            }
+
+        });
+
+        assertThrows(jobsources.CustomExceptions.class, () -> {
+            try {
+                mainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "glassdoor(MainSite)_cantFindPagingControls.htm");
+            } catch (CustomExceptions e) {
+                System.out.println(e);
+                if (e.toString().equals("jobsources.CustomExceptions: CompanyHTMLElements: div.pagingControls.cell.middle can't be found.")) {
+                    throw e;
                 }
             }
         });
