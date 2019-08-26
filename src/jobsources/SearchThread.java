@@ -1,7 +1,7 @@
 package jobsources;
 
 //import jobsources.files_that_work_with_job_data.JListData;
-import jobsources.files_that_work_with_job_data.JobData;
+import jobsources.files_that_work_with_job_data.GlassdoorJobData;
 import jobsources.gui.JComboBoxGUI;
 import jobsources.read_write_to_files.FileWrite;
 
@@ -14,7 +14,7 @@ public class SearchThread implements Runnable {
 
     //   private volatile Boolean exit = false;
     private JButton searchButton;
-    private LinkedHashMap<String, JobData> allJobsFromFile;
+    private LinkedHashMap<String, GlassdoorJobData> allJobsFromFile;
     private ArrayList<String> allJobLinks = new ArrayList<>();
   //  private JobDataObjectsFile jobDataObjectsFile;
     private JList<String> allJobsJList; // = new JList();
@@ -37,7 +37,7 @@ public class SearchThread implements Runnable {
 
     @Override
     public void run() {
-        ArrayList<JobData> jobDataArrayList = new ArrayList<>();
+        ArrayList<GlassdoorJobData> glassdoorJobDataArrayList = new ArrayList<>();
 
       //  JListData JListData = new JListData(searchTerm, allJobsJList, jComboBoxNumberOfJobsToFind);
 //       // SWENewGradAbstractJobStrategy(allJobsJList, jComboBoxNumberOfJobsToFind);
@@ -58,9 +58,13 @@ public class SearchThread implements Runnable {
 //
 
 
-        LinkedHashMap<String, JobData> mapOfAllJobs = new LinkedHashMap<>();
-        mapOfAllJobs = addUnseenJobsToMap(allJobsFromFile);
-     //   jobDataObjectsFile.writeObjectsToFile(mapOfAllJobs);
+        LinkedHashMap<String, GlassdoorJobData> mapOfAllJobs = new LinkedHashMap<>();
+        try {
+            mapOfAllJobs = addUnseenJobsToMap(allJobsFromFile);
+        } catch (CustomExceptions customExceptions) {
+            customExceptions.printStackTrace();
+        }
+        //   jobDataObjectsFile.writeObjectsToFile(mapOfAllJobs);
 
 //        String title = "";
 //        for (String s : mapOfAllJobs.keySet()) {
@@ -76,7 +80,7 @@ public class SearchThread implements Runnable {
         searchButton.setText("Search");
     }
 
-    private LinkedHashMap<String, JobData> addUnseenJobsToMap(LinkedHashMap<String, JobData> map) {
+    private LinkedHashMap<String, GlassdoorJobData> addUnseenJobsToMap(LinkedHashMap<String, GlassdoorJobData> map) throws CustomExceptions {
         ArrayList<String> newLinks = new ArrayList<>();
 
         for (String jobLink : allJobLinks) {
@@ -86,10 +90,10 @@ public class SearchThread implements Runnable {
             newLinks.add(jobLink);
         }
 
-        JobData jobData = null;
+        GlassdoorJobData glassdoorJobData = null;
         for (String link : newLinks) {
-            jobData = new JobData(link);
-            map.put(link, jobData);
+            glassdoorJobData = new GlassdoorJobData(link);
+            map.put(link, glassdoorJobData);
         }
 
         return map;

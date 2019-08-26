@@ -1,11 +1,10 @@
 package jobsources.files_that_work_with_job_data;
 
+import jobsources.CustomExceptions;
 import jobsources.RegExLookAt;
 import jobsources.StringTools;
-import jobsources.files_that_connect_to_internet.JobSiteData;
+import jobsources.files_that_connect_to_internet.GlassdoorJobSiteData;
 import jobsources.read_write_to_files.FileRead;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.Serializable;
 import java.text.ParseException;
@@ -13,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class JobData implements Serializable {
+public class GlassdoorJobData extends GlassdoorJobSiteData implements Serializable {
     private String jobLink = "";
     private String jobTitle = "";
     private String applyType = "";
@@ -21,7 +20,7 @@ public class JobData implements Serializable {
     private String rejected = "";
     private String jobID = "";
     private Integer numberOfDaysPosted = 0;
-    private JobSiteData jobSiteData;
+    private GlassdoorJobSiteData glassdoorJobSiteData;
     private StringTools stringTools;
     private Integer rank = 0;
     private TreeSet<String> dontShowKeywords;
@@ -33,21 +32,19 @@ public class JobData implements Serializable {
     private RegExLookAt regExLookAt = new RegExLookAt();
     private YearsOfExperienceFilter yearsOfExperienceFilter = new YearsOfExperienceFilter();
     private ShowJobsCriteria showJobsCriteria = new ShowJobsCriteria();
-
     private boolean applied = false;
 
-
-    public JobData(String link) {
+    public GlassdoorJobData(String link)  throws CustomExceptions {
         setJobID(link);
-        jobSiteData = new JobSiteData();
+        glassdoorJobSiteData = new GlassdoorJobSiteData();
         stringTools = new StringTools();
 
-        String connectionResult = jobSiteData.connectToJobSite(link);
+        String connectionResult = glassdoorJobSiteData.connectToJobSite(link);
         if (connectionResult.equals("Connected.")) {
-            jobLink = jobSiteData.getJobLink();
+            jobLink = glassdoorJobSiteData.getJobLink();
             setJobTitle();
-            jobDescriptionText = jobSiteData.getAllText();
-            setDatePosted();
+            jobDescriptionText = glassdoorJobSiteData.getAllText();
+           // setDatePosted();
 
             if (jobDescriptionText.get(0).equals("Job has expired.")) {
                 applyType = "Apply Type: Job expired, no data.";
@@ -55,7 +52,7 @@ public class JobData implements Serializable {
                 numberOfDaysPosted = 0;
 
             } else {
-                setApplyType();
+              //  setApplyType();
                 setNumberOfDaysPosted();
                 JobRanker jobRanker = new JobRanker(getApplyType(), jobDescriptionText, numberOfDaysPosted);
                 rank = jobRanker.getJobRank();
@@ -89,35 +86,42 @@ public class JobData implements Serializable {
         }
     }
 
-    private void setMeetsCriteria(JobData jobData) {
-        meetsCriteria = showJobsCriteria.meetsCriteria(jobData);
+    
+    public void setMeetsCriteria(GlassdoorJobData glassdoorJobData) {
+        meetsCriteria = showJobsCriteria.meetsCriteria(glassdoorJobData);
     }
 
-    private void setCriteriaRejection() {
+    
+    public void setCriteriaRejection() {
         if (!showJobsCriteria.getRejected().isEmpty()) {
             rejected = showJobsCriteria.getRejected();
         }
     }
 
+    
     public boolean isApplied() {
         return applied;
     }
 
+    
     public void setApplied(boolean applied) {
         this.applied = applied;
         setMeetsCriteria(this);
     }
 
+    
     public boolean getMeetsCriteria() {
         return meetsCriteria;
     }
 
-    private void setJobID(String link) {
+    
+    public void setJobID(String link) {
         StringTools stringTools = new StringTools();
         jobID = stringTools.removeEverythingBeforeAndIncludingTerm(link, "jobListingId=");
     }
 
-    private void setDontShowJobFromLine(String lineFromJobDescription) {
+    
+    public void setDontShowJobFromLine(String lineFromJobDescription) {
         if (dontShowJob) {
             return;
         }
@@ -126,12 +130,14 @@ public class JobData implements Serializable {
         experienceFilter(lineFromJobDescription);
     }
 
+    
     public void setDontShowJob(boolean dontShow) {
         this.dontShowJob = dontShow;
         setMeetsCriteria(this);
     }
 
-    private void experienceFilter(String lineFromJobDescription) {
+    
+    public void experienceFilter(String lineFromJobDescription) {
         if (yearsOfExperienceFilter.stringContainsExperienceNumberAndYear(lineFromJobDescription)) {
             if (yearsOfExperienceFilter.showJobFilter(lineFromJobDescription, 1)) {
                 return;
@@ -142,7 +148,8 @@ public class JobData implements Serializable {
         }
     }
 
-    private void dontShowKeywordsFilter(String lineFromJobDescription) {
+    
+    public void dontShowKeywordsFilter(String lineFromJobDescription) {
         for (String s : dontShowKeywords) {
             if (lineFromJobDescription.contains(s)) {
                 rejected = "REJECTED: description contains: " + s;
@@ -157,31 +164,35 @@ public class JobData implements Serializable {
         }
     }
 
-    private boolean jobContainsYearsAndExperience(String stringWithLeadingNumber) {
-        boolean dontShowJobMatch;
-        stringWithLeadingNumber = stringWithLeadingNumber.replaceAll("^[\\d][.][)]", "");
-        dontShowJobMatch = regExLookAt.regExPatternMatch(stringWithLeadingNumber, "^[1-9][t0+y-][oey+\\d][\\daye][yrea][rseao]");
+//    
+//    public boolean jobContainsYearsAndExperience(String stringWithLeadingNumber) {
+//        boolean dontShowJobMatch;
+//        stringWithLeadingNumber = stringWithLeadingNumber.replaceAll("^[\\d][.][)]", "");
+//        dontShowJobMatch = regExLookAt.regExPatternMatch(stringWithLeadingNumber, "^[1-9][t0+y-][oey+\\d][\\daye][yrea][rseao]");
+//
+//        if (dontShowJobMatch) {
+//            return true;
+//        }
+//
+//        if (stringWithLeadingNumber.contains("exp")) {
+//            return true;
+//        }
+//
+//        return stringWithLeadingNumber.contains("years") || stringWithLeadingNumber.contains("yrs");
+//    }
 
-        if (dontShowJobMatch) {
-            return true;
-        }
-
-        if (stringWithLeadingNumber.contains("exp")) {
-            return true;
-        }
-
-        return stringWithLeadingNumber.contains("years") || stringWithLeadingNumber.contains("yrs");
-    }
-
+    
     public void setDontShowJobFromLine(boolean dontShowJob) {
         this.dontShowJob = dontShowJob;
     }
 
-    Boolean dontShowJob() {
+    
+    public Boolean dontShowJob() {
         return dontShowJob;
     }
 
-    private void setLinesWithGoodKeywords(String lineFromJobDescription) {
+    
+    public void setLinesWithGoodKeywords(String lineFromJobDescription) {
         String regex = "[/\\s,()-]|\\.\\s";
         ArrayList<String> words = new ArrayList<>(Arrays.asList(lineFromJobDescription.split(regex)));
 
@@ -194,19 +205,23 @@ public class JobData implements Serializable {
         }
     }
 
+    
     public ArrayList<String> getLinesWithGoodKeywords() {
         return linesWithGoodKeywords;
     }
 
+    
     public Integer getRank() {
         return rank;
     }
 
+    
     public void setNumberOfDaysPosted() {
         String todaysDate = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
         numberOfDaysPosted = Integer.valueOf(getDifferenceBetweenDates(todaysDate, getDatePosted(), "yyyy-MM-dd"));
     }
 
+    
     public String getDifferenceBetweenDates(String finalDate, String initialDate, String format) {
         if (initialDate.equals("<div class=")) {
             return "can't find site or site is invalid.";
@@ -235,26 +250,14 @@ public class JobData implements Serializable {
         return String.valueOf(Math.toIntExact(TimeUnit.DAYS.convert(differenceInMilliseconds, TimeUnit.MILLISECONDS)));
     }
 
-    Integer getNumberOfDaysPosted() {
+    
+    public Integer getNumberOfDaysPosted() {
         return numberOfDaysPosted;
     }
 
-    private void setDatePosted() {
-        Elements applyDiv = jobSiteData.getParsedHTML().select("div.pageInsideContent");
 
-        String datePosted = "";
-        for (Element e : applyDiv) {
-            datePosted = stringTools.removeEverythingBeforeAndIncludingTerm(String.valueOf(e), "\"datePosted\": \"");
-            datePosted = stringTools.removeEverythingAfterAndIncludingTerm(datePosted, "\"");
-        }
-        if (datePosted.equals("<div class=")) {
-            this.datePosted = "can't find site or site is invalid.";
-            return;
-        }
 
-        this.datePosted = datePosted;
-    }
-
+    
     public String getDatePosted() {
         return datePosted;
     }
@@ -268,6 +271,7 @@ public class JobData implements Serializable {
 //        return jobSiteData.getBulletPoints();
 //    }
 
+    
     public String getJobLink() {
         if (jobLink == null) {
             return "job link can't be found.";
@@ -275,31 +279,33 @@ public class JobData implements Serializable {
         return jobLink;
     }
 
+    
     public String getJobTitle() {
         return jobTitle;
     }
 
-    private void setJobTitle() {
-        jobTitle = jobSiteData.getHTMLTitle();
+    
+    public void setJobTitle() {
+        jobTitle = glassdoorJobSiteData.getHTMLTitle();
     }
 
-    private void setApplyType() {
-        Elements applyDiv = jobSiteData.getParsedHTML().select("div.regToApplyArrowBoxContainer");
-        applyType = applyDiv.text();
-    }
 
+    
     public String getApplyType() {
         return applyType;
     }
 
+    
     public ArrayList<String> getJobDescriptionText() {
         return jobDescriptionText;
     }
 
+    
     public String getRejectedString() {
         return rejected;
     }
 
+    
     public String getJobID() {
         return jobID;
     }

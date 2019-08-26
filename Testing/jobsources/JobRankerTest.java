@@ -1,8 +1,6 @@
 package jobsources;
 
-import jobsources.files_that_connect_to_internet.JobSiteData;
-import jobsources.files_that_work_with_job_data.JobData;
-import jobsources.files_that_work_with_job_data.JobRanker;
+import jobsources.files_that_work_with_job_data.GlassdoorJobData;
 import org.junit.jupiter.api.Test;
 
 import java.text.SimpleDateFormat;
@@ -14,21 +12,21 @@ class JobRankerTest {
     private String path = "D:/Java/JobSearch/websiteTest/";
 
     @Test
-    public void EasyApplyPointsTest() {
+    public void EasyApplyPointsTest() throws CustomExceptions {
         //    System.out.println(" jobRank = (goodWordTotalPoints * 25) + applyTypePoints - badWordTotalPoints - numberOfDaysPostedPoints");
         String todaysDate = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
 
-        JobData jobData = new JobData(path + "easyApply.htm");
-        String numberOfDaysPosted = jobData.getDifferenceBetweenDates(jobData.getDatePosted(),todaysDate,"yyyy-MM-dd");
+        GlassdoorJobData glassdoorJobData = new GlassdoorJobData(path + "easyApply.htm");
+        String numberOfDaysPosted = glassdoorJobData.getDifferenceBetweenDates(glassdoorJobData.getDatePosted(),todaysDate,"yyyy-MM-dd");
 
-        int easyApplyTotalPoints = (2 * 25 + 50 - 2) + Integer.valueOf(numberOfDaysPosted);
-        assertEquals((Integer) easyApplyTotalPoints, jobData.getRank());
+        int easyApplyTotalPoints = (2 * 25 + 50 - 2) + Integer.parseInt(numberOfDaysPosted);
+        assertEquals((Integer) easyApplyTotalPoints, glassdoorJobData.getRank());
 
-        JobData jobData1 = new JobData(path + "companySite.htm");
-        String numberOfDaysPostedCompanySite = jobData1.getDifferenceBetweenDates(jobData1.getDatePosted(),todaysDate,"yyyy-MM-dd");
+        GlassdoorJobData glassdoorJobData1 = new GlassdoorJobData(path + "companySite.htm");
+        String numberOfDaysPostedCompanySite = glassdoorJobData1.getDifferenceBetweenDates(glassdoorJobData1.getDatePosted(),todaysDate,"yyyy-MM-dd");
 
-        int companyApplyPoints = 2*25 - 2 + Integer.valueOf(numberOfDaysPostedCompanySite);// + Integer.valueOf(numberOfDaysPosted);
-        assertEquals((Integer) companyApplyPoints, jobData1.getRank());
+        int companyApplyPoints = 2*25 - 2 + Integer.parseInt(numberOfDaysPostedCompanySite);// + Integer.valueOf(numberOfDaysPosted);
+        assertEquals((Integer) companyApplyPoints, glassdoorJobData1.getRank());
     }
 
     @Test

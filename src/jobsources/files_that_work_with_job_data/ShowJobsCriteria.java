@@ -7,7 +7,7 @@ import java.util.List;
 public class ShowJobsCriteria implements SearchCriteria, Serializable {
     private String rejected = "";
 
-    public boolean meetsCriteria(JobData jd) {
+    public boolean meetsCriteria(GlassdoorJobData jd) {
         if (jd.dontShowJob()) {
             return false;
         }

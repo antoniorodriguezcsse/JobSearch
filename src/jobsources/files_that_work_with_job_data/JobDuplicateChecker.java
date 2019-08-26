@@ -19,8 +19,8 @@ public class JobDuplicateChecker {
 
     private void setUpJobIDs(String fileName) {
         ReadObjectsFromFile readObjectsFromFile = new ReadObjectsFromFile();
-        TreeSet<JobData> readObjectsTreeSet = readObjectsFromFile.readObjects(fileName);
-        for (JobData jd : readObjectsTreeSet) {
+        TreeSet<GlassdoorJobData> readObjectsTreeSet = readObjectsFromFile.readObjects(fileName);
+        for (GlassdoorJobData jd : readObjectsTreeSet) {
             jobIDsTreeSet.add(jd.getJobID());
         }
     }

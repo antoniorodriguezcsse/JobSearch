@@ -1,7 +1,8 @@
 package jobsources.gui;
 
+import jobsources.CustomExceptions;
 import jobsources.SearchThread;
-import jobsources.files_that_work_with_job_data.JobData;
+import jobsources.files_that_work_with_job_data.GlassdoorJobData;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -17,7 +18,7 @@ public class JButtonSearchGUI {
     private Timer timer;
     private JList<String> allJobsJList;
     private ArrayList<String> allJobLinks = new ArrayList<>();
-    private LinkedHashMap<String, JobData> allJobsFromFile;
+    private LinkedHashMap<String, GlassdoorJobData> allJobsFromFile;
     //  private GlassDoor glassDoor;
    // private JobDataObjectsFile jobDataObjectsFile;
     private JComboBoxGUI jComboBoxNumberOfJobsToFind;
@@ -96,7 +97,7 @@ public class JButtonSearchGUI {
         });
     }
 
-    private LinkedHashMap<String, JobData> addUnseenJobsToMap(LinkedHashMap<String, JobData> map) {
+    private LinkedHashMap<String, GlassdoorJobData> addUnseenJobsToMap(LinkedHashMap<String, GlassdoorJobData> map) throws CustomExceptions {
         ArrayList<String> newLinks = new ArrayList<>();
 
         for (String jobLink : allJobLinks) {
@@ -106,10 +107,10 @@ public class JButtonSearchGUI {
             newLinks.add(jobLink);
         }
 
-        JobData jobData = null;
+        GlassdoorJobData glassdoorJobData = null;
         for (String link : newLinks) {
-            jobData = new JobData(link);
-            map.put(link, jobData);
+            glassdoorJobData = new GlassdoorJobData(link);
+            map.put(link, glassdoorJobData);
         }
 
         return map;

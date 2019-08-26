@@ -6,18 +6,16 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.io.IOException;
 
- abstract class AbstractHTMLGrabber {
-    Document html = Document.createShell("");
-    transient Document parsedHTML;
+  class HTMLGrabber {
+    private Document html = Document.createShell("");
+    private transient Document parsedHTML;
 
     String connectToWebsite(String mainSite/* JListAllJobsGUI jListAllJobsGUI*/) {
-
         Document documentFromFile;
         try {
-            if(mainSite.contains("https://")) {
+            if (mainSite.contains("https://")) {
                 html = Jsoup.connect(mainSite).userAgent("Mozilla").timeout(30000).get();
-            }
-            else{
+            } else {
                 File input = new File(mainSite);
                 documentFromFile = Jsoup.parse(input, "UTF-8");
                 if (documentDoesNotContainHTML(documentFromFile)) {
@@ -36,7 +34,16 @@ import java.io.IOException;
         }
     }
 
+    Document getHTML() {
+        return html;
+    }
+
+     Document getParsedHTML() {
+        return parsedHTML;
+    }
+
     private boolean documentDoesNotContainHTML(Document doc) {
-        return !String.valueOf(doc).toLowerCase().contains("<!doctype html>");
+        String documentLowerCase = String.valueOf(doc).toLowerCase();
+        return !(documentLowerCase.contains("<!doctype html>") || documentLowerCase.contains(" <head>"));
     }
 }

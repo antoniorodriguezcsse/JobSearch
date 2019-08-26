@@ -1,6 +1,6 @@
 package jobsources.gui;
 
-import jobsources.files_that_work_with_job_data.JobData;
+import jobsources.files_that_work_with_job_data.GlassdoorJobData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -83,13 +83,13 @@ public class GlassDoorJobSearchGUI extends JFrame {
 
     private void readJobsFromFileToTabbedView() {
       //  JobDataObjectsFile jobDataObjectsFile = new JobDataObjectsFile();
-        ArrayList<JobData> jobDatafromFile = new ArrayList<>();
+        ArrayList<GlassdoorJobData> glassdoorJobDatafromFile = new ArrayList<>();
         /////////////////////////////////////////////// jobDatafromFile.addAll(jobDataObjectsFile.readObjectsFromFile());
 
         DefaultListModel<String> model = new DefaultListModel<String>();
 
-        for (int i = 0; i < jobDatafromFile.size(); i++) {
-            model.add(i, jobDatafromFile.get(i).getJobTitle());
+        for (int i = 0; i < glassdoorJobDatafromFile.size(); i++) {
+            model.add(i, glassdoorJobDatafromFile.get(i).getJobTitle());
         }
         //  model.addAll(wordsFromFile);
         jListAllJobs.setModel(model);

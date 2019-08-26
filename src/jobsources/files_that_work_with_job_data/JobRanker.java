@@ -10,7 +10,7 @@ public class JobRanker implements Serializable {
 
     private String applyType = "";
     private Integer numberOfDaysPosted = 0;
-    private JobData jobData;
+    private GlassdoorJobData glassdoorJobData;
     private ArrayList<String> linesOfDescription = new ArrayList<>();
     private ArrayList<String> jobDescriptionText = new ArrayList<>();
     private Integer applyTypePoints = 0;

@@ -1,46 +1,33 @@
 package jobsources.files_that_connect_to_internet;
 
 import jobsources.CustomExceptions;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.TreeSet;
 
-public class MainSiteJobLinkExtractor extends AbstractHTMLGrabber {
-    private TreeSet<String> allJobLinks = new TreeSet<>();
-    private CompanyHTMLElements companyHTMLElements = new CompanyHTMLElements();
-
-    private String nextMainSite;
+public class IndeedMainSiteJobLinkExtractor extends HTMLGrabber implements InterfaceMainSiteJobLinkExtractor {
     private Elements jobContainer;
-    private String site;
     private String errorMessage = "";
+    private Elements links;
+    private Document html;
 
-    TreeSet<String> getAllJobLinksFromSite() {
-        return allJobLinks;
-    }
-
-    void clearAllJobLinksFromSite() {
-        allJobLinks.clear();
-    }
-
-    public String getNextMainSite() {
-        return companyHTMLElements.getNextMainSite();
-    }
-
+    @Override
     public TreeSet<String> getAllJobLinksFromOneMainSite(String mainSite) throws CustomExceptions {
-        TreeSet<String> listOfJobLinksAndNextMainSite = new TreeSet<>();
 
         try {
             System.out.println("trying to connect to: " + mainSite);
             if (connectToMainWebSite(mainSite).equals("Connected.")) {
-                allJobLinks.clear();
-                companyHTMLElements.validateHTMLElements(mainSite, html);
-                setAllJobLinksFromMainSite();
-            } else {
                 if (!errorMessage.isEmpty()) {
                     throw new CustomExceptions(errorMessage);
                 }
-                return allJobLinks;
+                html = getHTML();
+                setupHTMLElements();
+                allJobLinks.clear();
+                setAllJobLinksFromMainSite();
+            } else {
+                throw new CustomExceptions(errorMessage);
             }
 
             Thread.sleep(300);
@@ -48,19 +35,43 @@ public class MainSiteJobLinkExtractor extends AbstractHTMLGrabber {
             e.printStackTrace();
         }
 
-    //    setNextMainSite();
+        //setNextMainSite();
         return allJobLinks;
     }
 
-    private void setAllJobLinksFromMainSite() {
-        for (Element e : companyHTMLElements.getJobContainer()) {
+    @Override
+    public TreeSet<String> getAllJobLinksFromSite() {
+        return allJobLinks;
+    }
+
+    void clearAllJobLinksFromSite() {
+        allJobLinks.clear();
+    }
+
+    @Override
+    public String getNextMainSite() {
+        if (links.last() == null || links.isEmpty() || !links.last().toString().contains("&nbsp;")) {
+            return "no more pages";
+        } else {
+            return links.last().attr("href");
+        }
+    }
+
+    @Override
+    public void setAllJobLinksFromMainSite() {
+        for (Element e : jobContainer) {
             allJobLinks.add(e.attr("href"));
         }
     }
 
+    @Override
+    public void setupHTMLElements() {
+        jobContainer = html.select("div.title").select("a[href]");
+        links = html.select("div.pagination").select("a[href]");
+    }
+
     private String connectToMainWebSite(String website) throws CustomExceptions {
-        if (!website.contains("https://www.glassdoor.com") && !website.isEmpty() && !website.contains("TestingGlassdoor")
-                && !website.contains("https://www.indeed.com") && !website.contains("TestingIndeed")) {
+        if (!website.contains("https://www.indeed.com") && !website.contains("TestingIndeed")) {
             errorMessage = "MainSiteJobLinkExtractor.connectToMainWebSite: Not a valid link.";
         }
 
