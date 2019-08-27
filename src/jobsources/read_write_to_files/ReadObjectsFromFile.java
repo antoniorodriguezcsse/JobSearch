@@ -35,7 +35,7 @@ public class ReadObjectsFromFile implements Serializable {
         }
 
         for (JobData jd : jobDataTreeSet) {
-            if (jd.getDatePosted().isEmpty()) {
+            if (jd.getDatePosted().isEmpty() || jd.getDatePosted().equals("can't find site or site is invalid.")) {
                 continue;
             }
             jd.setNumberOfDaysPosted();
