@@ -6,55 +6,42 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class GlassdoorJobSiteData extends AbstractJobSiteData {
-    private String jobLink = "";
-    private Element jobDescription;
-    private Document parsedHTML;
-    private String applyType;
-    private String datePosted;
-    private HTMLGrabber HTMLGrabber;
+import java.text.BreakIterator;
+import java.util.ArrayList;
+import java.util.Locale;
 
-    public String connectToJobSite(String jobLink) throws CustomExceptions {
-        HTMLGrabber = new HTMLGrabber();
-        String result = HTMLGrabber.connectToWebsite(jobLink);
-        if (result.equals("Could not connect to site.")) {
-            return result;
-        } else {
-            setParsedHTML(HTMLGrabber);
-            parsedHTML = HTMLGrabber.getParsedHTML();
-            setJobDescriptionElements();
-            setAllText(jobDescription);
-            setApplyType();
-            setDatePosted();
-            this.jobLink = jobLink;
-            return result;
-        }
+class GlassdoorJobSiteData implements InterfaceJobSiteData {
+    private transient Document parsedHTML;
+    private ArrayList<String> textFromJobDescription = new ArrayList<>();
+    private Element jobDescriptionElement;
+
+    @Override
+    public void setParsedHTML(Document parsedHTML){
+        this.parsedHTML = parsedHTML;
     }
 
     @Override
-    public String getJobLink() {
-        if(jobLink.isEmpty())
-        {
-            return "Site has not been connected.";
-        }
-        return jobLink;
-    }
-
     public String getApplyType() {
-        return applyType;
+        return parsedHTML.select("div.regToApplyArrowBoxContainer").text();
     }
 
-    private void setApplyType() {
-        Elements applyDiv = HTMLGrabber.getParsedHTML().select("div.regToApplyArrowBoxContainer");
-        applyType = applyDiv.text();
+    @Override
+    public String getJobTitle() {
+        if (parsedHTML == null) {
+            return "Job title has not been set.";
+        }
+        return parsedHTML.title();
     }
 
+    @Override
+    public ArrayList<String> getJobDescriptionText() throws CustomExceptions {
+        setTextFromJobDescription();
+        return textFromJobDescription;
+    }
+
+    @Override
     public String getDatePosted() {
-        return datePosted;
-    }
-
-    private void setDatePosted() {
-        Elements applyDiv = HTMLGrabber.getParsedHTML().select("div.pageInsideContent");
+        Elements applyDiv = parsedHTML.select("div.pageInsideContent");
         StringTools stringTools = new StringTools();
         String datePosted = "";
         for (Element e : applyDiv) {
@@ -62,22 +49,80 @@ public class GlassdoorJobSiteData extends AbstractJobSiteData {
             datePosted = stringTools.removeEverythingAfterAndIncludingTerm(datePosted, "\"");
         }
         if (datePosted.equals("<div class=")) {
-            this.datePosted = "can't find site or site is invalid.";
-            return;
+            return "can't find site or site is invalid.";
         }
 
-        this.datePosted = datePosted;
+        return datePosted;
     }
 
     private void setJobDescriptionElements() throws CustomExceptions {
         try {
-            jobDescription = parsedHTML.select("div.jobDescriptionContent.desc").get(0);
+            jobDescriptionElement = parsedHTML.select("div.jobDescriptionContent.desc").get(0);
         } catch (IndexOutOfBoundsException e) {
             throw new CustomExceptions("GlassdoorJobSiteData.setJobDescriptionElement: div.jobDescriptionContent.desc can't be found.");
         }
     }
 
+    private void setTextFromJobDescription() throws CustomExceptions {
+        setJobDescriptionElements();
+        if (jobDescriptionElement.toString().isEmpty()) {
+            textFromJobDescription.add("No job data.");
+            return;
+        }
 
+        textFromJobDescription.clear();
+        String textFromJob = String.valueOf(jobDescriptionElement);
+        textFromJob = removeDivClassDivAndNewLines(textFromJob);
 
+        String[] splitLines = splitByEndTagsAndBreaksExeceptem(textFromJob);
+        BreakIterator iterator = BreakIterator.getSentenceInstance(Locale.US);
+        for (String splitLine : splitLines) {
+            if (splitLine.isBlank()) {
+                continue;
+            }
+            splitLine = removeTagsAndCleanUpString(splitLine);
+            if (splitLine.contains("’")) {
+                splitLine = splitLine.replaceAll("’", "'");
+            }
+            textFromJobDescription.addAll(extractSentences(iterator, splitLine.trim()));
+        }
+    }
+
+    private String removeTagsAndCleanUpString(String s) {
+        s = s.replaceAll("amp;", "");
+        s = s.replaceAll("&nbsp;", "");
+        s = s.replaceAll("<[^>]*>", "");
+        s = s.trim();
+        s = s.replace("  ", " ");
+        return s;
+    }
+
+    private String[] splitByEndTagsAndBreaksExeceptem(String textFromJob) {
+        return textFromJob.split("<br>|</li>|<ul>|</div>");
+    }
+
+    private ArrayList<String> extractSentences(BreakIterator bi, String source) {
+        int counter = 0;
+        bi.setText(source);
+        ArrayList<String> linesFromJobDescription = new ArrayList<>();
+        int lastIndex = bi.first();
+        while (lastIndex != BreakIterator.DONE) {
+            int firstIndex = lastIndex;
+            lastIndex = bi.next();
+
+            if (lastIndex != BreakIterator.DONE) {
+                String sentence = source.substring(firstIndex, lastIndex);
+                linesFromJobDescription.add(removeTagsAndCleanUpString(sentence));
+            }
+        }
+        return linesFromJobDescription;
+    }
+
+    private String removeDivClassDivAndNewLines(String textFromJob) {
+        textFromJob = textFromJob.replace("<div class=\"jobDescriptionContent desc\">", "");
+        textFromJob = textFromJob.replace("<div>", "");
+        textFromJob = textFromJob.replace("\n", "");
+        return textFromJob;
+    }
 
 }

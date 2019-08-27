@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GlassdoorJobSiteDataTest {
     private FileRead fileRead = new FileRead();
-    private GlassdoorJobSiteData glassdoorJobSiteData = new GlassdoorJobSiteData();
+    private JobSiteData jobSiteData = new JobSiteData();
     private String path = "D:/Java/JobSearch/websiteTest/";
 
 
@@ -32,14 +32,14 @@ class GlassdoorJobSiteDataTest {
 
         assertEquals(jobSites.size(), expected.size());
         for (int i = 0; i < jobSites.size(); i++) {
-            glassdoorJobSiteData.connectToJobSite(jobSites.get(i));
-            assertEquals(expected.get(i), glassdoorJobSiteData.getHTMLTitle());
+            jobSiteData.connectToJobSite(jobSites.get(i));
+            assertEquals(expected.get(i), jobSiteData.getJobTitle());
         }
     }
 
     @Test
     void getHTMLTtle_CallingTheFunctionWhenDataHasNotBeenSet_returnStringTitleNotset() {
-        assertEquals("Job title has not been set.", glassdoorJobSiteData.getHTMLTitle());
+        assertEquals("Job title has not been set.", jobSiteData.getJobTitle());
     }
 
     @Test
@@ -48,25 +48,25 @@ class GlassdoorJobSiteDataTest {
        expected = fileRead.getLinesFromFile(path + "allTextTest.txt");
 
         ArrayList<String> actual = new ArrayList<>();
-        glassdoorJobSiteData.connectToJobSite(path + "jobSite1.htm");
+        jobSiteData.connectToJobSite(path + "jobSite1.htm");
         actual.add("***Title***Revature Entry Level Software Engineer (No Coding Experience Required) Job in Oakland, CA | Glassdoor");
-        actual.addAll(glassdoorJobSiteData.getAllText());
+        actual.addAll(jobSiteData.getTextFromJobDescription());
 
-        glassdoorJobSiteData.connectToJobSite(path + "companySite.htm");
+        jobSiteData.connectToJobSite(path + "companySite.htm");
         actual.add("***Title***Revature Entry Level C# Software Developer Job in Hayward, CA | Glassdoor");
-        actual.addAll(glassdoorJobSiteData.getAllText());
+        actual.addAll(jobSiteData.getTextFromJobDescription());
 
-        glassdoorJobSiteData.connectToJobSite(path + "easyApply.htm");
-        actual.add("***Title***" + glassdoorJobSiteData.getHTMLTitle());
-        actual.addAll(glassdoorJobSiteData.getAllText());
+        jobSiteData.connectToJobSite(path + "easyApply.htm");
+        actual.add("***Title***" + jobSiteData.getJobTitle());
+        actual.addAll(jobSiteData.getTextFromJobDescription());
 
-        glassdoorJobSiteData.connectToJobSite(path + "partnerSite.htm");
-        actual.add("***Title***" + glassdoorJobSiteData.getHTMLTitle());
-        actual.addAll(glassdoorJobSiteData.getAllText());
+        jobSiteData.connectToJobSite(path + "partnerSite.htm");
+        actual.add("***Title***" + jobSiteData.getJobTitle());
+        actual.addAll(jobSiteData.getTextFromJobDescription());
 
-        glassdoorJobSiteData.connectToJobSite(path + "goDaddy.htm");
-        actual.add("***Title***" + glassdoorJobSiteData.getHTMLTitle());
-        actual.addAll(glassdoorJobSiteData.getAllText());
+        jobSiteData.connectToJobSite(path + "goDaddy.htm");
+        actual.add("***Title***" + jobSiteData.getJobTitle());
+        actual.addAll(jobSiteData.getTextFromJobDescription());
 
         assertEquals(expected, actual);
     }
@@ -75,7 +75,7 @@ class GlassdoorJobSiteDataTest {
     void getAllText_CalledWhenDataHasntBeenSet_returnsSiteHasNotBeenConnected() {
         ArrayList<String> expected = new ArrayList<>();
         expected.add("Site has not been connected.");
-        assertEquals(expected, glassdoorJobSiteData.getAllText());
+        assertEquals(expected, jobSiteData.getTextFromJobDescription());
     }
 
     @Test
@@ -87,25 +87,25 @@ class GlassdoorJobSiteDataTest {
         expected.add(path + "partnerSite.htm");
 
         ArrayList<String> actual = new ArrayList<>();
-        glassdoorJobSiteData.connectToJobSite(path + "jobSite1.htm");
-        actual.add(glassdoorJobSiteData.getJobLink());
-        glassdoorJobSiteData.connectToJobSite(path + "companySite.htm");
-        actual.add(glassdoorJobSiteData.getJobLink());
-        glassdoorJobSiteData.connectToJobSite(path + "easyApply.htm");
-        actual.add(glassdoorJobSiteData.getJobLink());
-        glassdoorJobSiteData.connectToJobSite(path + "partnerSite.htm");
-        actual.add(glassdoorJobSiteData.getJobLink());
+        jobSiteData.connectToJobSite(path + "jobSite1.htm");
+        actual.add(jobSiteData.getJobLink());
+        jobSiteData.connectToJobSite(path + "companySite.htm");
+        actual.add(jobSiteData.getJobLink());
+        jobSiteData.connectToJobSite(path + "easyApply.htm");
+        actual.add(jobSiteData.getJobLink());
+        jobSiteData.connectToJobSite(path + "partnerSite.htm");
+        actual.add(jobSiteData.getJobLink());
         assertEquals(expected, actual);
     }
 
     @Test
     void getJobLink_whenDataHasntBeenSet_stringReturnsSitehasNotbeenConnected() {
-        assertEquals("Site has not been connected.", glassdoorJobSiteData.getJobLink());
+        assertEquals("Site has not been connected.", jobSiteData.getJobLink());
     }
 
     @Test
     void getJobLink_JobDescriptionCantBeFound() throws CustomExceptions {
-        GlassdoorJobSiteData glassdoorJobSiteData = new GlassdoorJobSiteData();
+        JobSiteData glassdoorJobSiteData = new JobSiteData();
         assertThrows(jobsources.CustomExceptions.class, () -> {
             try {
                 glassdoorJobSiteData.connectToJobSite("https://www.google.com/");

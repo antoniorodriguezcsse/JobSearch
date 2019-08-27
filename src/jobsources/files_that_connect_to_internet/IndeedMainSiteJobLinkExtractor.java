@@ -7,22 +7,22 @@ import org.jsoup.select.Elements;
 
 import java.util.TreeSet;
 
-public class IndeedMainSiteJobLinkExtractor extends HTMLGrabber implements InterfaceMainSiteJobLinkExtractor {
+public class IndeedMainSiteJobLinkExtractor implements InterfaceMainSiteJobLinkExtractor {
     private Elements jobContainer;
     private String errorMessage = "";
     private Elements links;
     private Document html;
-
+    private InterfaceHTMLExtractor interfaceHtmlExtractor;
     @Override
     public TreeSet<String> getAllJobLinksFromOneMainSite(String mainSite) throws CustomExceptions {
-
+        setupHTMLExtractor(new HTMLExtractor());
         try {
             System.out.println("trying to connect to: " + mainSite);
             if (connectToMainWebSite(mainSite).equals("Connected.")) {
                 if (!errorMessage.isEmpty()) {
                     throw new CustomExceptions(errorMessage);
                 }
-                html = getHTML();
+                html = interfaceHtmlExtractor.getHTML();
                 setupHTMLElements();
                 allJobLinks.clear();
                 setAllJobLinksFromMainSite();
@@ -37,6 +37,10 @@ public class IndeedMainSiteJobLinkExtractor extends HTMLGrabber implements Inter
 
         //setNextMainSite();
         return allJobLinks;
+    }
+
+    private void setupHTMLExtractor(HTMLExtractor htmlExtractor) {
+        this.interfaceHtmlExtractor = htmlExtractor;
     }
 
     @Override
@@ -75,7 +79,7 @@ public class IndeedMainSiteJobLinkExtractor extends HTMLGrabber implements Inter
             errorMessage = "MainSiteJobLinkExtractor.connectToMainWebSite: Not a valid link.";
         }
 
-        String status = connectToWebsite(website);
+        String status = interfaceHtmlExtractor.connectToWebsite(website);
         if (status.equals("Could not connect to site.") || status.equals("Not a valid URL.")) {
             errorMessage = "MainSiteJobLinkExtractor.connectToMainWebSite: " + status;
         }

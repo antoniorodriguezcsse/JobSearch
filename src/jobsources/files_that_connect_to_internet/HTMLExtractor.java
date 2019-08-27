@@ -6,11 +6,12 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.io.IOException;
 
-  class HTMLGrabber {
+  class HTMLExtractor implements InterfaceHTMLExtractor {
     private Document html = Document.createShell("");
     private transient Document parsedHTML;
 
-    String connectToWebsite(String mainSite/* JListAllJobsGUI jListAllJobsGUI*/) {
+    @Override
+    public String connectToWebsite(String mainSite/* JListAllJobsGUI jListAllJobsGUI*/) {
         Document documentFromFile;
         try {
             if (mainSite.contains("https://")) {
@@ -34,11 +35,13 @@ import java.io.IOException;
         }
     }
 
-    Document getHTML() {
+    @Override
+    public Document getHTML() {
         return html;
     }
 
-     Document getParsedHTML() {
+     @Override
+     public Document getParsedHTML() {
         return parsedHTML;
     }
 

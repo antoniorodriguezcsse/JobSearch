@@ -7,7 +7,7 @@ import org.jsoup.select.Elements;
 
 import java.util.TreeSet;
 
-public class GlassdoorMainSiteJobLinkExtractor extends HTMLGrabber implements InterfaceMainSiteJobLinkExtractor {
+public class GlassdoorMainSiteJobLinkExtractor implements InterfaceMainSiteJobLinkExtractor {
    // private TreeSet<String> allJobLinks = new TreeSet<>();
     private Elements jobContainer;
     private Elements barWithNumberOfPages;
@@ -18,34 +18,16 @@ public class GlassdoorMainSiteJobLinkExtractor extends HTMLGrabber implements In
     private String nextMainSite;
     private String site;
     private String errorMessage = "";
-
-    @Override
-    public TreeSet<String> getAllJobLinksFromSite() {
-        return allJobLinks;
-    }
-
-    void clearAllJobLinksFromSite() {
-        allJobLinks.clear();
-    }
-
-    @Override
-    public String getNextMainSite() {
-        nextMainSite = nextButton.select("a[href]").attr("href");
-        if (nextMainSite.isEmpty()) {
-            return "no more pages";
-        } else {
-            return nextMainSite;
-        }
-    }
+    private InterfaceHTMLExtractor interfaceHtmlExtractor;
 
     @Override
     public TreeSet<String> getAllJobLinksFromOneMainSite(String mainSite) throws CustomExceptions {
-        TreeSet<String> listOfJobLinksAndNextMainSite = new TreeSet<>();
+        setupHTMLExtractor(new HTMLExtractor());
 
         try {
             System.out.println("trying to connect to: " + mainSite);
             if (connectToMainWebSite(mainSite).equals("Connected.")) {
-                html = getHTML();
+                html = interfaceHtmlExtractor.getHTML();
                 setupHTMLElements();
                 verifyGlassdoorElements();
                 if (!errorMessage.isEmpty()) {
@@ -65,6 +47,22 @@ public class GlassdoorMainSiteJobLinkExtractor extends HTMLGrabber implements In
         //setNextMainSite();
         return allJobLinks;
     }
+    @Override
+    public TreeSet<String> getAllJobLinksFromSite() {
+        return allJobLinks;
+    }
+
+
+
+    @Override
+    public String getNextMainSite() {
+        nextMainSite = nextButton.select("a[href]").attr("href");
+        if (nextMainSite.isEmpty()) {
+            return "no more pages";
+        } else {
+            return nextMainSite;
+        }
+    }
 
     @Override
     public void setAllJobLinksFromMainSite() {
@@ -81,6 +79,15 @@ public class GlassdoorMainSiteJobLinkExtractor extends HTMLGrabber implements In
         pageNavigationBarBottom = html.select("div.pageNavBar.noMargBot");
         pagingControlMiddle = pageNavigationBarBottom.select("div.pagingControls.cell.middle");
         nextButton = html.select("li.next");
+    }
+
+
+    void clearAllJobLinksFromSite() {
+        allJobLinks.clear();
+    }
+
+    private void setupHTMLExtractor(InterfaceHTMLExtractor interfaceHtmlExtractor) {
+        this.interfaceHtmlExtractor = interfaceHtmlExtractor;
     }
 
     private void verifyGlassdoorElements() {
@@ -119,11 +126,12 @@ public class GlassdoorMainSiteJobLinkExtractor extends HTMLGrabber implements In
             errorMessage = "MainSiteJobLinkExtractor.connectToMainWebSite: Not a valid link.";
         }
 
-        String status = connectToWebsite(website);
+        String status = interfaceHtmlExtractor.connectToWebsite(website);
         if (status.equals("Could not connect to site.") || status.equals("Not a valid URL.")) {
             errorMessage = "MainSiteJobLinkExtractor.connectToMainWebSite: " + status;
         }
 
         return status;
     }
+
 }
