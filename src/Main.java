@@ -1,5 +1,5 @@
 class Main {
-   public static void main(String[] args) {
+    public static void main(String[] args) {
 //        final String searchForJobs = "1";
 //        final String viewSavedJobs = "2";
 //        final String applyToJobs = "3";

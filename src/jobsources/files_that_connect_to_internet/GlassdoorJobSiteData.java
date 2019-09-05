@@ -2,21 +2,23 @@ package jobsources.files_that_connect_to_internet;
 
 import jobsources.CustomExceptions;
 import jobsources.StringTools;
+import jobsources.files_that_work_with_job_data.HTMLTagCleaner;
+import jobsources.files_that_work_with_job_data.InterfaceHTMLTagCleaner;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.text.BreakIterator;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.Date;
 
-class GlassdoorJobSiteData implements InterfaceJobSiteData {
+public class GlassdoorJobSiteData implements InterfaceJobSiteData {
     private transient Document parsedHTML;
     private ArrayList<String> textFromJobDescription = new ArrayList<>();
-    private Element jobDescriptionElement;
 
     @Override
-    public void setParsedHTML(Document parsedHTML){
+    public void setParsedHTML(Document parsedHTML) {
         this.parsedHTML = parsedHTML;
     }
 
@@ -26,10 +28,7 @@ class GlassdoorJobSiteData implements InterfaceJobSiteData {
     }
 
     @Override
-    public String getJobTitle() {
-        if (parsedHTML == null) {
-            return "Job title has not been set.";
-        }
+    public String getJobTitle() throws CustomExceptions {
         return parsedHTML.title();
     }
 
@@ -52,77 +51,70 @@ class GlassdoorJobSiteData implements InterfaceJobSiteData {
             return "can't find site or site is invalid.";
         }
 
+        Date dateObject = null;
+        try {
+            dateObject = new SimpleDateFormat("yyyy-MM-dd").parse(datePosted);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        SimpleDateFormat output = new SimpleDateFormat("MM-dd-yyyy");
+        datePosted = output.format(dateObject);
         return datePosted;
     }
 
-    private void setJobDescriptionElements() throws CustomExceptions {
+    private void setTextFromJobDescription() throws CustomExceptions {
+        Element jobDescriptionElement = null;
         try {
             jobDescriptionElement = parsedHTML.select("div.jobDescriptionContent.desc").get(0);
         } catch (IndexOutOfBoundsException e) {
-            throw new CustomExceptions("GlassdoorJobSiteData.setJobDescriptionElement: div.jobDescriptionContent.desc can't be found.");
+            textFromJobDescription.add("No job data.");
+            return;
         }
-    }
 
-    private void setTextFromJobDescription() throws CustomExceptions {
-        setJobDescriptionElements();
         if (jobDescriptionElement.toString().isEmpty()) {
             textFromJobDescription.add("No job data.");
             return;
         }
 
         textFromJobDescription.clear();
-        String textFromJob = String.valueOf(jobDescriptionElement);
-        textFromJob = removeDivClassDivAndNewLines(textFromJob);
+        InterfaceHTMLTagCleaner htmlTagCleaner = new HTMLTagCleaner(jobDescriptionElement.toString());
+        textFromJobDescription = htmlTagCleaner.getHtmlText();
+    }
 
-        String[] splitLines = splitByEndTagsAndBreaksExeceptem(textFromJob);
-        BreakIterator iterator = BreakIterator.getSentenceInstance(Locale.US);
-        for (String splitLine : splitLines) {
-            if (splitLine.isBlank()) {
-                continue;
-            }
-            splitLine = removeTagsAndCleanUpString(splitLine);
-            if (splitLine.contains("’")) {
-                splitLine = splitLine.replaceAll("’", "'");
-            }
-            textFromJobDescription.addAll(extractSentences(iterator, splitLine.trim()));
+    public String getJobID()
+    {
+        StringTools stringTools = new StringTools();
+  //      jobID = stringTools.removeEverythingBeforeAndIncludingTerm(link, "jobListingId=");
+        return "blah";
+    }
+
+    @Override
+    public boolean getJobExpiered() {
+        String expiered = parsedHTML.select("div.gdAlertBox.neutralBox").text();
+        return expiered.equals("This job has expired, but there are others like it below.");
+    }
+
+    @Override
+    public boolean getCantFindPage()
+    {
+        String cantFindPage = parsedHTML.select("div.headline").text();
+        return cantFindPage.equals("Sorry, we can't find that page.");
+    }
+
+    @Override
+    public void verifyDivContainers() throws CustomExceptions {
+        if (parsedHTML.select("div.regToApplyArrowBoxContainer").isEmpty()) {
+            throw new CustomExceptions("GlassdoorJobSiteData.getApplyType: div.regToApplyArrowBoxContainer can't be found.");
+        }
+
+        if (parsedHTML.select("div.pageInsideContent").isEmpty()) {
+            throw new CustomExceptions("GlassdoorJobSiteData.getDatePosted: div.pageInsideContent can't be found.");
+        }
+
+        if (parsedHTML.select("div.jobDescriptionContent.desc").isEmpty()) {
+            throw new CustomExceptions("GlassdoorJobSiteData.setTextJobDescription: div.jobDescriptionContent.desc can't be found.");
         }
     }
-
-    private String removeTagsAndCleanUpString(String s) {
-        s = s.replaceAll("amp;", "");
-        s = s.replaceAll("&nbsp;", "");
-        s = s.replaceAll("<[^>]*>", "");
-        s = s.trim();
-        s = s.replace("  ", " ");
-        return s;
-    }
-
-    private String[] splitByEndTagsAndBreaksExeceptem(String textFromJob) {
-        return textFromJob.split("<br>|</li>|<ul>|</div>");
-    }
-
-    private ArrayList<String> extractSentences(BreakIterator bi, String source) {
-        int counter = 0;
-        bi.setText(source);
-        ArrayList<String> linesFromJobDescription = new ArrayList<>();
-        int lastIndex = bi.first();
-        while (lastIndex != BreakIterator.DONE) {
-            int firstIndex = lastIndex;
-            lastIndex = bi.next();
-
-            if (lastIndex != BreakIterator.DONE) {
-                String sentence = source.substring(firstIndex, lastIndex);
-                linesFromJobDescription.add(removeTagsAndCleanUpString(sentence));
-            }
-        }
-        return linesFromJobDescription;
-    }
-
-    private String removeDivClassDivAndNewLines(String textFromJob) {
-        textFromJob = textFromJob.replace("<div class=\"jobDescriptionContent desc\">", "");
-        textFromJob = textFromJob.replace("<div>", "");
-        textFromJob = textFromJob.replace("\n", "");
-        return textFromJob;
-    }
-
 }

@@ -9,11 +9,15 @@ public interface InterfaceJobSiteData {
 
     void setParsedHTML(Document parsedHTML);
 
-  //  Element getJobDescriptionElements() throws CustomExceptions;
-
     String getApplyType();
 
-    String getJobTitle();
+    boolean getJobExpiered();
+
+    boolean getCantFindPage();
+
+    void verifyDivContainers() throws CustomExceptions;
+
+    String getJobTitle() throws CustomExceptions;
 
     ArrayList<String> getJobDescriptionText() throws CustomExceptions;
 

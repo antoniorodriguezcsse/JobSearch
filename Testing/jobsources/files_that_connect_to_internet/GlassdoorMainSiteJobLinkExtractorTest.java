@@ -33,6 +33,7 @@ class GlassdoorMainSiteJobLinkExtractorTest {
         jobLinks = glassdoorMainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "glassdoor(MainSite)_getAllLinksFromOneSite.htm");
 
         for (String s : jobLinks) {
+            System.out.println(s);
             assertTrue(s.contains("https://www.glassdoor.com/partner/jobListing.htm?pos="));
         }
     }
@@ -71,7 +72,6 @@ class GlassdoorMainSiteJobLinkExtractorTest {
             try {
                 glassdoorMainSiteJobLinkExtractor.getAllJobLinksFromOneMainSite(glassDoorPath + "glassdoor(MainSite)_cantFindPageNavigationBar.htm");
             } catch (CustomExceptions e) {
-                System.out.println("THIS error: " + e);
                 if (e.toString().equals("jobsources.CustomExceptions: GlassdoorMainSiteJobLinkExtractor: div.pageNavBar.noMargBot can't be found.")) {
                     throw e;
                 }
